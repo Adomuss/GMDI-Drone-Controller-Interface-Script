@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35027.167
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GMDI Drone Controller Interface Script", "GMDI Drone Controller Interface Script\GMDI Drone Controller Interface Script.csproj", "{5D46B6D4-7F1E-4393-92D5-3311ECDDC87F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5D46B6D4-7F1E-4393-92D5-3311ECDDC87F}.Debug|x64.ActiveCfg = Debug|x64
+		{5D46B6D4-7F1E-4393-92D5-3311ECDDC87F}.Debug|x64.Build.0 = Debug|x64
+		{5D46B6D4-7F1E-4393-92D5-3311ECDDC87F}.Release|x64.ActiveCfg = Release|x64
+		{5D46B6D4-7F1E-4393-92D5-3311ECDDC87F}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9E4EC6D2-98B5-4B41-BD31-F7AB21598D68}
+	EndGlobalSection
+EndGlobal
