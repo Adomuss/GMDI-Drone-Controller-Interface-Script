@@ -47,7 +47,7 @@ namespace IngameScript
         string cancelcommand = "cancel";
 
         
-        string ver = "V0.308A";
+        string ver = "V0.309A";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -239,6 +239,7 @@ namespace IngameScript
                         display_tag_main.Add(display_all[i]);
                     }
                 }
+                display_all.Clear();
                 program_blocks_all = new List<IMyProgrammableBlock>();
                 program_blocks_tag = new List<IMyProgrammableBlock>();
                 gts.GetBlocksOfType<IMyProgrammableBlock>(program_blocks_all);
@@ -249,6 +250,7 @@ namespace IngameScript
                         program_blocks_tag.Add(program_blocks_all[i]);
                     }
                 }
+                program_blocks_all.Clear();
                 setup_complete = true;
                 Echo("Setup complete!");
             }
