@@ -88,7 +88,6 @@ namespace IngameScript
         Vector3D main_gps_coords;
         double drillshaft_length;
         int skipbores;
-        int coreout;
         string command_dist;
         string iteration_view;
         string limit_display;
@@ -109,7 +108,6 @@ namespace IngameScript
         bool confirm_command = false;
         bool confirm_sel_2 = false;
         bool confirm_sel_1 = false;
-        bool confirm_sel_3 = false;
         string disp_command = "";
         string displayconfirm_1;
         string displayconfirm_2;
@@ -189,6 +187,7 @@ namespace IngameScript
                 item_line_7 = new List<string>();
                 item_line_8 = new List<string>();
                 item_line_9 = new List<string>();
+                item_line_10 = new List<string>();
                 scroll_command_item = new List<string>();
                 display_view = new StringBuilder();
                 mcd_new = new StringBuilder();
@@ -213,6 +212,7 @@ namespace IngameScript
                 item_line_7.Add("");
                 item_line_8.Add("");
                 item_line_9.Add("");
+                item_line_10.Add("");
 
                 //menu text - level 1
                 item_line_0.Add("Command:");
@@ -1828,7 +1828,7 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_9} 10. {item_line_9[menu_level]} {core_display}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_10} 11. {item_line_9[menu_level]} {displayconfirm_2}");
+                display_view.Append($"{line_highlight_10} 11. {item_line_10[menu_level]} {displayconfirm_2}");
                 if (confirm_send)
                 {
                     display_view.Append('\n');
