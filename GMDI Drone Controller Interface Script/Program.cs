@@ -1623,6 +1623,7 @@ namespace IngameScript
                 if (bool.TryParse(custom_data_15, out limit_coreout))
                 {
                     bool.TryParse(custom_data_15, out limit_coreout);
+                    data_valid = true;
                 }
                 else
                 {
