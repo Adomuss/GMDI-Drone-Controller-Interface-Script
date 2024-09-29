@@ -1202,7 +1202,7 @@ namespace IngameScript
                 {
                     if (item_number == 7)
                     {
-                        item_number = 9;
+                        item_number = 10;
                         argument = "";
                     }
                 }
@@ -1211,7 +1211,7 @@ namespace IngameScript
             {
                 if (menu_level == 2)
                 {
-                    if (item_number >= 0 && item_number <= 8)
+                    if (item_number >= 0 && item_number <= 9)
                     {
                         incr_item();
                         argument = "";
