@@ -47,7 +47,7 @@ namespace IngameScript
         string cancelcommand = "cancel";
 
         
-        string ver = "V0.309A";
+        string ver = "V0.310A";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -76,8 +76,10 @@ namespace IngameScript
         string custom_data_12;
         string custom_data_13;
         string custom_data_14;
+        string custom_data_15;
         double ignore_depth = 0.0;
         bool limit_flight_drones = false;
+        bool limit_coreout = false;
         int flight_factor = 1;
         int hard_drone_limit = 10;
         double gridsize;
@@ -86,9 +88,11 @@ namespace IngameScript
         Vector3D main_gps_coords;
         double drillshaft_length;
         int skipbores;
+        int coreout;
         string command_dist;
         string iteration_view;
         string limit_display;
+        string core_display;
         string cancel_display;
         double temp_drillshaft_length = 0.0;
         double temp_ignore_depth = 0.0;
@@ -99,11 +103,13 @@ namespace IngameScript
         int temp_flight_factor = 0;
         int temp_hard_drone_limit = 0;
         int temp_skipbores;
+        int temp_limit_coreout;
         int temp_cancel = 0;
         bool confirm_send = false;
         bool confirm_command = false;
         bool confirm_sel_2 = false;
         bool confirm_sel_1 = false;
+        bool confirm_sel_3 = false;
         string disp_command = "";
         string displayconfirm_1;
         string displayconfirm_2;
@@ -120,8 +126,11 @@ namespace IngameScript
         int new_flight_factor;
         int new_hard_drone_limit;
         bool new_limit_flight_drones;
+        bool new_limit_coreout;
         int read_limit_flight_drones = 0;
+        int read_limit_coreout = 0;
         int new_int_limit_flight_drones = 0;
+        int new_int_limit_coreout = 0;
         int temp_confirmval_1 = 0;
         int temp_confirmval_2 = 0;
         List<string> item_line_0;
@@ -134,6 +143,7 @@ namespace IngameScript
         List<string> item_line_7;
         List<string> item_line_8;
         List<string> item_line_9;
+        List<string> item_line_10;
         List<string> scroll_command_item;
         int scroll_item_val = 0;
         int scroll_item_val_min_limit = 0;
@@ -148,6 +158,7 @@ namespace IngameScript
         string line_highlight_7 = "[ ]";
         string line_highlight_8 = "[ ]";
         string line_highlight_9 = "[ ]";
+        string line_highlight_10 = "[ ]";
 
         bool setup_complete = false;
         StringBuilder display_view;
@@ -213,7 +224,8 @@ namespace IngameScript
                 item_line_6.Add("---");
                 item_line_7.Add("Cancel:");
                 item_line_8.Add("---");
-                item_line_9.Add("Confirm:");
+                item_line_9.Add("---");
+                item_line_10.Add("Confirm:");
 
                 //menu text - level 2
                 item_line_0.Add("Number Grid X positions:");
@@ -225,7 +237,8 @@ namespace IngameScript
                 item_line_6.Add("Limit drones in-flight:");
                 item_line_7.Add("In-Flight Hard Limit:");
                 item_line_8.Add("In-Flight Factor:");
-                item_line_9.Add("Confirm:");
+                item_line_9.Add("Core out:");
+                item_line_10.Add("Confirm:");
                 menu_level = 0;
                 item_number = 0;
                 Me.CustomData = "";
@@ -302,6 +315,14 @@ namespace IngameScript
             else
             {
                 read_limit_flight_drones = 0;
+            }
+            if (limit_coreout)
+            {
+                read_limit_coreout = 1;
+            }
+            else
+            {
+                read_limit_coreout = 0;
             }
             if (argument == "setup" && setup_complete)
             {
@@ -470,6 +491,10 @@ namespace IngameScript
                             }
                             if (item_number == 9)
                             {
+                                temp_limit_coreout = temp_limit_coreout + 1;
+                            }
+                            if (item_number == 10)
+                            {
                                 temp_confirmval_2 = temp_confirmval_2 + 1;
                             }
                             has_increased = true;
@@ -517,6 +542,10 @@ namespace IngameScript
                             }
                             if (item_number == 9)
                             {
+                                temp_limit_coreout = temp_limit_coreout + 1;
+                            }
+                            if (item_number == 10)
+                            {
                                 temp_confirmval_2 = temp_confirmval_2 + 1;
                             }
                             has_increased = true;
@@ -563,6 +592,10 @@ namespace IngameScript
                                 temp_flight_factor = temp_flight_factor + 10;
                             }
                             if (item_number == 9)
+                            {
+                                temp_limit_coreout = temp_limit_coreout + 1;
+                            }
+                            if (item_number == 10)
                             {
                                 temp_confirmval_2 = temp_confirmval_2 + 1;
                             }
@@ -646,6 +679,10 @@ namespace IngameScript
                             }
                             if (item_number == 9)
                             {
+                                temp_limit_coreout = temp_limit_coreout - 1;
+                            }
+                            if (item_number == 10)
+                            {
                                 temp_confirmval_2 = temp_confirmval_2 - 1;
                             }
                             has_decreased = true;
@@ -692,6 +729,10 @@ namespace IngameScript
                                 temp_flight_factor = temp_flight_factor - 5;
                             }
                             if (item_number == 9)
+                            {
+                                temp_limit_coreout = temp_limit_coreout - 1;
+                            }
+                            if (item_number == 10)
                             {
                                 temp_confirmval_2 = temp_confirmval_2 - 1;
                             }
@@ -740,6 +781,10 @@ namespace IngameScript
                             }
                             if (item_number == 9)
                             {
+                                temp_limit_coreout = temp_limit_coreout - 1;
+                            }
+                            if (item_number == 10)
+                            {
                                 temp_confirmval_2 = temp_confirmval_2 - 1;
                             }
                             has_decreased = true;
@@ -771,7 +816,7 @@ namespace IngameScript
                     {
                         iteration_view = "1";
                     }
-                    if (item_number == 7 || item_number == 9)
+                    if (item_number == 7 || item_number == 9 || item_number == 10)
                     {
                         iteration_view = "Yes/No";
                     }
@@ -797,6 +842,10 @@ namespace IngameScript
                     {
                         iteration_view = "Yes/No";
                     }
+                    if (item_number == 10)
+                    {
+                        iteration_view = "Yes/No";
+                    }
                 }
 
                 if (iteration_val == 1)
@@ -817,6 +866,10 @@ namespace IngameScript
                     {
                         iteration_view = "Yes/No";
                     }
+                    if (item_number == 10)
+                    {
+                        iteration_view = "Yes/No";
+                    }
                 }
 
                 if (iteration_val == 2)
@@ -834,6 +887,10 @@ namespace IngameScript
                         iteration_view = "Yes/No";
                     }
                     if (item_number == 9)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                    if (item_number == 10)
                     {
                         iteration_view = "Yes/No";
                     }
@@ -904,6 +961,23 @@ namespace IngameScript
             {
                 new_skipbores = 0;
             }
+            new_int_limit_coreout = temp_limit_coreout + read_limit_coreout;
+            if (new_int_limit_coreout < 0)
+            {
+                new_int_limit_coreout = 1;
+            }
+            if (new_int_limit_coreout > 1)
+            {
+                new_int_limit_coreout = 0;
+            }
+            if (new_int_limit_coreout == 0)
+            {
+                new_limit_coreout = false;
+            }
+            if (new_int_limit_coreout == 1)
+            {
+                new_limit_coreout = true;
+            }
 
             if (temp_cancel < 0)
             {
@@ -955,6 +1029,7 @@ namespace IngameScript
             {
                 confirm_sel_2 = false;
             }
+
             if (new_int_limit_flight_drones == 0)
             {
                 limit_display = "No";
@@ -962,6 +1037,14 @@ namespace IngameScript
             if (new_int_limit_flight_drones == 1)
             {
                 limit_display = "Yes";
+            }
+            if (new_int_limit_coreout == 0)
+            {
+                core_display = "No";
+            }
+            if (new_int_limit_coreout == 1)
+            {
+                core_display = "Yes";
             }
             if (confirm_sel_1)
             {
@@ -1008,13 +1091,13 @@ namespace IngameScript
             {
                 if (menu_level == 1)
                 {
-                    if (item_number == 9 && !confirm_sel_1)
+                    if (item_number == 10 && !confirm_sel_1)
                     {
                         item_number = 0;
                         confirm_command = false;
                         argument = "";
                     }
-                    if (item_number == 9 && confirm_sel_1)
+                    if (item_number == 10 && confirm_sel_1)
                     {
                         if (temp_cancel == 1)
                         {
@@ -1037,13 +1120,13 @@ namespace IngameScript
             {
                 if (menu_level == 2)
                 {
-                    if (item_number == 9 && !confirm_sel_2)
+                    if (item_number == 10 && !confirm_sel_2)
                     {
                         incr_item();
                         confirm_send = false;
                         argument = "";
                     }
-                    if (item_number == 9 && confirm_sel_2)
+                    if (item_number == 10 && confirm_sel_2)
                     {
                         //send data to program block custom data                    
                         if (data_valid)
@@ -1079,6 +1162,8 @@ namespace IngameScript
                             mcd_new.Append(":");
                             mcd_new.Append(new_skipbores);
                             mcd_new.Append(":");
+                            mcd_new.Append(new_limit_coreout);
+                            mcd_new.Append(":");
                         }
                         controller_actual.CustomData = mcd_new.ToString();
                         confirm_send = true;
@@ -1091,6 +1176,8 @@ namespace IngameScript
                         temp_numPointsY = 0;
                         temp_skipbores = 0;
                         temp_limit_flight_drones = 0;
+                        temp_limit_coreout = 0;
+
                         temp_confirmval_2 = 0;
                         confirm_sel_2 = false;
                         incr_item();
@@ -1174,6 +1261,7 @@ namespace IngameScript
                 custom_data_12 = "";
                 custom_data_13 = "";
                 custom_data_14 = "";
+                custom_data_15 = "";
                 Echo("Please use prospector to assign a mining location");
                 data_valid = false;
                 return;
@@ -1212,6 +1300,9 @@ namespace IngameScript
                 hard_drone_limit = 6;
                 custom_data_14 = "";
                 skipbores = 0;
+                custom_data_15 = "";
+                limit_coreout = false;
+                //coreout = 0;
                 return;
             }
             if (gps_command.Length > 5)
@@ -1256,6 +1347,9 @@ namespace IngameScript
                 hard_drone_limit = 6;
                 custom_data_14 = "";
                 skipbores = 0;
+                custom_data_15 = "";
+                limit_coreout = false;
+                //coreout = 0;
                 return;
             }
 
@@ -1295,6 +1389,9 @@ namespace IngameScript
                 hard_drone_limit = 6;
                 custom_data_14 = "";
                 skipbores = 0;
+                custom_data_15 = "";
+                limit_coreout = false;
+                //coreout = 0;
                 return;
             }
             if (gps_command.Length > 7)
@@ -1333,6 +1430,9 @@ namespace IngameScript
                 hard_drone_limit = 6;
                 custom_data_14 = "";
                 skipbores = 0;
+                custom_data_15 = "";              
+                limit_coreout = false;
+                //coreout = 0;
                 return;
             }
             if (gps_command.Length > 8)
@@ -1367,6 +1467,9 @@ namespace IngameScript
                 hard_drone_limit = 6;
                 custom_data_14 = "";
                 skipbores = 0;
+                custom_data_15 = "";
+                limit_coreout = false;
+                //coreout = 0;
                 return;
             }
             if (gps_command.Length > 9)
@@ -1397,6 +1500,9 @@ namespace IngameScript
                 hard_drone_limit = 6;
                 custom_data_14 = "";
                 skipbores = 0;
+                custom_data_15 = "";
+                limit_coreout = false;
+                //coreout = 0;
                 return;
             }
             if (gps_command.Length > 11)
@@ -1425,6 +1531,9 @@ namespace IngameScript
                 hard_drone_limit = 6;
                 custom_data_14 = "";
                 skipbores = 0;
+                custom_data_15 = "";
+                limit_coreout = false;
+                //coreout = 0;
                 return;
             }
             if (gps_command.Length > 12)
@@ -1451,6 +1560,9 @@ namespace IngameScript
                 hard_drone_limit = 6;
                 custom_data_14 = "";
                 skipbores = 0;
+                custom_data_15 = "";
+                limit_coreout = false;
+                //coreout = 0;
                 return;
             }
 
@@ -1475,6 +1587,8 @@ namespace IngameScript
             {
                 custom_data_14 = "";
                 skipbores = 0;
+                custom_data_15 = "";
+                limit_coreout = false;
                 return;
             }
 
@@ -1496,6 +1610,31 @@ namespace IngameScript
                 custom_data_14 = "";
                 skipbores = 0;
             }
+            if (gps_command.Length < 16)
+            {
+                custom_data_15 = "";
+                limit_coreout = false;
+                //coreout = 0;
+                return;
+            }
+            if (gps_command.Length > 15)
+            {
+                custom_data_15 = gps_command[15];
+                if (bool.TryParse(custom_data_15, out limit_coreout))
+                {
+                    bool.TryParse(custom_data_15, out limit_coreout);
+                }
+                else
+                {
+                    limit_coreout = false;
+                }
+            }
+            else
+            {
+                custom_data_15 = "";
+                limit_coreout = false;
+            }
+
         }
 
         public void LineResolver(int linevalin)
@@ -1580,6 +1719,14 @@ namespace IngameScript
             {
                 line_highlight_9 = "[ ]";
             }
+            if (linevalin == 10)
+            {
+                line_highlight_10 = "[O]";
+            }
+            else
+            {
+                line_highlight_10 = "[ ]";
+            }
 
         }
 
@@ -1646,7 +1793,7 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_8} ..  {item_line_8[menu_level]}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_9} 10. {item_line_9[menu_level]} {displayconfirm_1}");
+                display_view.Append($"{line_highlight_10} 10. {item_line_10[menu_level]} {displayconfirm_1}");                
                 if (confirm_command)
                 {
                     display_view.Append('\n');
@@ -1679,7 +1826,9 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_8} 9. {item_line_8[menu_level]} {new_flight_factor}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_9} 10. {item_line_9[menu_level]} {displayconfirm_2}");
+                display_view.Append($"{line_highlight_9} 10. {item_line_9[menu_level]} {core_display}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_10} 11. {item_line_9[menu_level]} {displayconfirm_2}");
                 if (confirm_send)
                 {
                     display_view.Append('\n');
@@ -1708,7 +1857,7 @@ namespace IngameScript
             }
             if (menu_level == 2)
             {
-                item_max_limit = 9;
+                item_max_limit = 10;
                 item_min_limit = 0;
             }
             item_number++;
@@ -1727,12 +1876,12 @@ namespace IngameScript
             }
             if (menu_level == 1)
             {
-                item_max_limit = 9;
+                item_max_limit = 10;
                 item_min_limit = 0;
             }
             if (menu_level == 2)
             {
-                item_max_limit = 9;
+                item_max_limit = 10;
                 item_min_limit = 0;
 
             }
