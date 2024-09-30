@@ -6,6 +6,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using VRage;
@@ -45,9 +46,8 @@ namespace IngameScript
         string command = "command";
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
-
         
-        string ver = "V0.310A";
+        string ver = "V0.311A";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -157,7 +157,8 @@ namespace IngameScript
         string line_highlight_8 = "[ ]";
         string line_highlight_9 = "[ ]";
         string line_highlight_10 = "[ ]";
-
+        string icon = "";
+        int stateshift = 0;
         bool setup_complete = false;
         StringBuilder display_view;
         StringBuilder mcd_new;
@@ -274,7 +275,6 @@ namespace IngameScript
                 Echo($"Main Displays with tag '{display_main_tag}' not found");
                 return;
             }
-
             display_actual = display_tag_main[0];
             IMyTextSurface surface = ((IMyTextSurfaceProvider)display_actual).GetSurface(scnpanel);
             if (surface != null)
@@ -295,7 +295,7 @@ namespace IngameScript
                 return;
             }
             controller_actual = program_blocks_tag[0];
-            Echo($"GMDI {ver} Running...");
+            Echo($"GMDI {ver} Running {icon}");
             Echo("");
             Echo("Use the below run arguments to navigate:");
             Echo("----------------------------------------");
@@ -306,8 +306,9 @@ namespace IngameScript
             Echo($"Decrease value = {decrease}");
             Echo($"Main menu = {menureturn}");
             //logic start
+            
             GetCustomData();
-
+            state_shifter();
             if (limit_flight_drones)
             {
                 read_limit_flight_drones = 1;
@@ -330,6 +331,7 @@ namespace IngameScript
                 argument = "";
                 Echo("Running setup...");
             }
+            state_shifter();
             //menu stuff
             if (argument.Contains(jobconf))
             {
@@ -391,7 +393,6 @@ namespace IngameScript
             {
                 item_down = false;
             }
-
             if (argument.Contains(incrsel))
             {
                 if (menu_level == 0 && !has_iterated)
@@ -445,7 +446,7 @@ namespace IngameScript
                             {
                                 temp_cancel = temp_cancel + 1;
                             }
-                            if (item_number == 9)
+                            if (item_number == 10)
                             {
                                 temp_confirmval_1 = temp_confirmval_1 + 1;
                             }
@@ -500,6 +501,7 @@ namespace IngameScript
                             has_increased = true;
                         }
                     }
+
                     if (iteration_val == 1)
                     {
                         if (menu_level == 2 && !has_increased)
@@ -551,6 +553,7 @@ namespace IngameScript
                             has_increased = true;
                         }
                     }
+                  
                     if (iteration_val == 2)
                     {
                         if (menu_level == 2 && !has_increased)
@@ -610,7 +613,7 @@ namespace IngameScript
             {
                 has_increased = false;
             }
-
+            
             if (argument.Contains(decrease))
             {
 
@@ -633,7 +636,7 @@ namespace IngameScript
                             {
                                 temp_cancel = temp_cancel - 1;
                             }
-                            if (item_number == 9)
+                            if (item_number == 10)
                             {
                                 temp_confirmval_1 = temp_confirmval_1 - 1;
                             }
@@ -688,6 +691,7 @@ namespace IngameScript
                             has_decreased = true;
                         }
                     }
+                    
                     if (iteration_val == 1)
                     {
                         if (menu_level == 2 && !has_decreased)
@@ -739,6 +743,7 @@ namespace IngameScript
                             has_decreased = true;
                         }
                     }
+                    
                     if (iteration_val == 2)
                     {
                         if (menu_level == 2 && !has_decreased)
@@ -797,7 +802,7 @@ namespace IngameScript
             {
                 has_decreased = false;
             }
-
+            
             if (menu_level == 0)
             {
                 if (iteration_val == 0)
@@ -847,7 +852,7 @@ namespace IngameScript
                         iteration_view = "Yes/No";
                     }
                 }
-
+                
                 if (iteration_val == 1)
                 {
                     if (item_number == 0 || item_number == 1 || item_number == 3 || item_number == 7 || item_number == 8)
@@ -871,7 +876,7 @@ namespace IngameScript
                         iteration_view = "Yes/No";
                     }
                 }
-
+                
                 if (iteration_val == 2)
                 {
                     if (item_number == 0 || item_number == 1 || item_number == 3 || item_number == 7 || item_number == 8)
@@ -898,7 +903,7 @@ namespace IngameScript
             }
 
 
-
+            
             //new totals for disp
             new_numPointsX = numPointsX + temp_numPointsX;
             if (new_numPointsX < 1)
@@ -1062,6 +1067,7 @@ namespace IngameScript
             {
                 displayconfirm_2 = "No";
             }
+            
             // confirm management
             if (argument.Contains("confirm"))
             {
@@ -1118,6 +1124,7 @@ namespace IngameScript
             }
             if (argument.Contains("confirm"))
             {
+                //if menu is job configuration
                 if (menu_level == 2)
                 {
                     if (item_number == 10 && !confirm_sel_2)
@@ -1185,8 +1192,11 @@ namespace IngameScript
                     }
                 }
             }
+
+            
             if (argument.Contains("confirm"))
             {
+                // if menu is command configuration
                 if (menu_level == 1)
                 {
                     if (item_number == 0)
@@ -1211,7 +1221,7 @@ namespace IngameScript
             {
                 if (menu_level == 2)
                 {
-                    if (item_number >= 0 && item_number <= 9)
+                    if (item_number >= 0 && item_number <= 10)
                     {
                         incr_item();
                         argument = "";
@@ -1236,7 +1246,7 @@ namespace IngameScript
             {
                 confirm_command = false;
             }
-
+            
         }
 
         void GetCustomData()
@@ -1955,7 +1965,34 @@ namespace IngameScript
                 disp_command = "";
             }
         }
-
+        void runicon(int state)
+        {
+            if (state == 0)
+            {
+                icon = ".---";
+            }
+            if (state == 1)
+            {
+                icon = "-.--";
+            }
+            if (state == 2)
+            {
+                icon = "--.-";
+            }
+            if (state == 3)
+            {
+                icon = "---.";
+            }
+        }
+        void state_shifter()
+        {
+            stateshift++;
+            if (stateshift > 3)
+            {
+                stateshift = 0;
+            }
+            runicon(stateshift);
+        }
 
 
         //end program
