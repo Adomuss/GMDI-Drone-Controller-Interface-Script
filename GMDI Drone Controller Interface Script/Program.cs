@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using VRage;
@@ -47,12 +48,15 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
         
-        string ver = "V0.311A";
+        string ver = "V0.312A";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
         string drone_controller_tag = "";
         string display_main_tag = "";
+        string secondary = "";
+        string secondary_tag = "";
+        string ant_tg = "";
         int menu_level = 0;
         int item_min_limit = 0;
         int item_max_limit = 9;
@@ -158,6 +162,8 @@ namespace IngameScript
         string line_highlight_9 = "[ ]";
         string line_highlight_10 = "[ ]";
         string icon = "";
+        string temp_id_name;
+        string temp_id_name_2;
         int stateshift = 0;
         bool setup_complete = false;
         StringBuilder display_view;
@@ -167,6 +173,8 @@ namespace IngameScript
         List<IMyTerminalBlock> display_tag_main;
         List<IMyProgrammableBlock> program_blocks_all;
         List<IMyProgrammableBlock> program_blocks_tag;
+        List<IMyRadioAntenna> at_all;
+        List<IMyRadioAntenna> at_tg;
         public void Save()
         {
         }
@@ -178,6 +186,8 @@ namespace IngameScript
             {
                 drone_controller_tag = "[" + drone_tag + " " + comms + "]";
                 display_main_tag = "[" + drone_tag + " " + intfs + " " + postfix + "]";
+                ant_tg = "[" + drone_tag + " " + comms + "]";
+                secondary_tag = $"[{secondary}]";
                 item_line_0 = new List<string>();
                 item_line_1 = new List<string>();
                 item_line_2 = new List<string>();
@@ -243,6 +253,24 @@ namespace IngameScript
                 menu_level = 0;
                 item_number = 0;
                 Me.CustomData = "";
+                at_all = new List<IMyRadioAntenna>();
+                at_tg = new List<IMyRadioAntenna>();
+                gts.GetBlocksOfType<IMyRadioAntenna>(at_all, b => b.CubeGrid == Me.CubeGrid);
+                for (int i = 0; i < at_all.Count; i++)
+                {
+                    if (at_all[i].CustomName.Contains(comms))
+                    {
+                        string checker = at_all[i].CustomData;
+                        drone_custom_data_check(checker, i);
+                        if (drone_tag == "" || drone_tag == null)
+                        {
+                            Echo($"Invalid name for drone_tag {drone_tag}");
+                            return;
+                        }                        
+                        at_tg.Add(at_all[i]);
+                    }
+                }
+                at_all.Clear();
                 display_all = new List<IMyTerminalBlock>();
                 display_tag_main = new List<IMyTerminalBlock>();
                 gts.GetBlocksOfType<IMyTerminalBlock>(display_all);
@@ -1993,7 +2021,65 @@ namespace IngameScript
             }
             runicon(stateshift);
         }
+        public void drone_custom_data_check(string custominfo, int index)
+        {
+            Echo("Checking for drone config information..");
+            String[] temp_id = custominfo.Split(':');
+            Echo($"{temp_id.Length}");
 
+            if (temp_id.Length > 0)
+            {
+                if (temp_id[0] != null)
+                {
+                    temp_id_name = temp_id[0];
+                    if (temp_id_name == "" || temp_id_name == null)
+                    {
+                        temp_id_name = drone_tag;
+                        Echo($"Resorting to default scout tag {drone_tag}");
+                    }
+                }
+            }
+            else
+            {
+                temp_id_name = drone_tag;
+                Echo($"Resorting to default ID#.{drone_tag}");
+            }
+            if (temp_id.Length > 1)
+            {
+                if (temp_id[1] != null)
+                {
+                    temp_id_name_2 = temp_id[1];
+                    if (temp_id_name_2 == null)
+                    {
+                        temp_id_name_2 = secondary;
+                        Echo($"Resorting to default scout tag {secondary}");
+                    }
+                }
+            }
+            else
+            {
+                temp_id_name_2 = secondary;
+                Echo($"Resorting to default ID#.{drone_tag}");
+            }
+            if (temp_id.Length == 0)
+            {
+                temp_id_name = drone_tag;
+                temp_id_name_2 = secondary;
+                Echo($"Resorting to default config {temp_id_name} {temp_id_name_2}.");
+            }
+            drone_tag = temp_id_name;
+            secondary = temp_id_name_2;
+            Echo($"Drone info:{drone_tag}");
+            drone_controller_tag = "[" + drone_tag + " " + comms + "]";
+            display_main_tag = "[" + drone_tag + " " + intfs + " " + postfix + "]";
+            ant_tg = "[" + drone_tag + " " + comms + "]";
+            secondary_tag = $"[{secondary}]";
+            if (secondary == "" || secondary == " " || secondary == null)
+            {
+                secondary_tag = "";
+            }
+            Me.CustomName = $"GMDI Programmable Block {secondary_tag} [{drone_tag} {intfs}]";
+        }
 
         //end program
     }
