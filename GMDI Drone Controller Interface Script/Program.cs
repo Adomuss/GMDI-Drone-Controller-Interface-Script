@@ -48,7 +48,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
         
-        string ver = "V0.312A";
+        string ver = "V0.314A";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -264,7 +264,7 @@ namespace IngameScript
                         drone_custom_data_check(checker, i);
                         if (drone_tag == "" || drone_tag == null)
                         {
-                            Echo($"Invalid name for drone_tag {drone_tag}");
+                            Echo($"Invalid name for drone_tag {drone_tag}. please add vailid drone tag (drone group name) to antenna custom data");
                             return;
                         }                        
                         at_tg.Add(at_all[i]);
@@ -472,11 +472,11 @@ namespace IngameScript
                             }
                             if (item_number == 7)
                             {
-                                temp_cancel = temp_cancel + 1;
+                                temp_cancel++;
                             }
                             if (item_number == 10)
                             {
-                                temp_confirmval_1 = temp_confirmval_1 + 1;
+                                temp_confirmval_1++;
                             }
                             has_increased = true;
                         }
@@ -484,11 +484,11 @@ namespace IngameScript
                         {
                             if (item_number == 0)
                             {
-                                temp_numPointsX = temp_numPointsX + 1;
+                                temp_numPointsX++;
                             }
                             if (item_number == 1)
                             {
-                                temp_numPointsY = temp_numPointsY + 1;
+                                temp_numPointsY++;
                             }
                             if (item_number == 2)
                             {
@@ -496,7 +496,7 @@ namespace IngameScript
                             }
                             if (item_number == 3)
                             {
-                                temp_skipbores = temp_skipbores + 1;
+                                temp_skipbores++;
                             }
                             if (item_number == 4)
                             {
@@ -508,23 +508,23 @@ namespace IngameScript
                             }
                             if (item_number == 6)
                             {
-                                temp_limit_flight_drones = temp_limit_flight_drones + 1;
+                                temp_limit_flight_drones++;
                             }
                             if (item_number == 7)
                             {
-                                temp_hard_drone_limit = temp_hard_drone_limit + 1;
+                                temp_hard_drone_limit++;
                             }
                             if (item_number == 8)
                             {
-                                temp_flight_factor = temp_flight_factor + 1;
+                                temp_flight_factor++;
                             }
                             if (item_number == 9)
                             {
-                                temp_limit_coreout = temp_limit_coreout + 1;
+                                temp_limit_coreout++;
                             }
                             if (item_number == 10)
                             {
-                                temp_confirmval_2 = temp_confirmval_2 + 1;
+                                temp_confirmval_2++;
                             }
                             has_increased = true;
                         }
@@ -572,11 +572,11 @@ namespace IngameScript
                             }
                             if (item_number == 9)
                             {
-                                temp_limit_coreout = temp_limit_coreout + 1;
+                                temp_limit_coreout++;
                             }
                             if (item_number == 10)
                             {
-                                temp_confirmval_2 = temp_confirmval_2 + 1;
+                                temp_confirmval_2++;
                             }
                             has_increased = true;
                         }
@@ -612,7 +612,7 @@ namespace IngameScript
                             }
                             if (item_number == 6)
                             {
-                                temp_limit_flight_drones = temp_limit_flight_drones + 1;
+                                temp_limit_flight_drones++;
                             }
                             if (item_number == 7)
                             {
@@ -624,11 +624,11 @@ namespace IngameScript
                             }
                             if (item_number == 9)
                             {
-                                temp_limit_coreout = temp_limit_coreout + 1;
+                                temp_limit_coreout++;
                             }
                             if (item_number == 10)
                             {
-                                temp_confirmval_2 = temp_confirmval_2 + 1;
+                                temp_confirmval_2++;
                             }
                             has_increased = true;
                         }
@@ -662,11 +662,11 @@ namespace IngameScript
                             }
                             if (item_number == 7)
                             {
-                                temp_cancel = temp_cancel - 1;
+                                temp_cancel--;
                             }
                             if (item_number == 10)
                             {
-                                temp_confirmval_1 = temp_confirmval_1 - 1;
+                                temp_confirmval_1--;
                             }
                             has_decreased = true;
                         }
@@ -674,11 +674,11 @@ namespace IngameScript
                         {
                             if (item_number == 0)
                             {
-                                temp_numPointsX = temp_numPointsX - 1;
+                                temp_numPointsX--;
                             }
                             if (item_number == 1)
                             {
-                                temp_numPointsY = temp_numPointsY - 1;
+                                temp_numPointsY--;
                             }
                             if (item_number == 2)
                             {
@@ -686,7 +686,7 @@ namespace IngameScript
                             }
                             if (item_number == 3)
                             {
-                                temp_skipbores = temp_skipbores - 1;
+                                temp_skipbores--;
                             }
                             if (item_number == 4)
                             {
@@ -698,23 +698,23 @@ namespace IngameScript
                             }
                             if (item_number == 6)
                             {
-                                temp_limit_flight_drones = temp_limit_flight_drones - 1;
+                                temp_limit_flight_drones--;
                             }
                             if (item_number == 7)
                             {
-                                temp_hard_drone_limit = temp_hard_drone_limit - 1;
+                                temp_hard_drone_limit--;
                             }
                             if (item_number == 8)
                             {
-                                temp_flight_factor = temp_flight_factor - 1;
+                                temp_flight_factor--;
                             }
                             if (item_number == 9)
                             {
-                                temp_limit_coreout = temp_limit_coreout - 1;
+                                temp_limit_coreout--;
                             }
                             if (item_number == 10)
                             {
-                                temp_confirmval_2 = temp_confirmval_2 - 1;
+                                temp_confirmval_2--;
                             }
                             has_decreased = true;
                         }
@@ -750,7 +750,7 @@ namespace IngameScript
                             }
                             if (item_number == 6)
                             {
-                                temp_limit_flight_drones = temp_limit_flight_drones - 1;
+                                temp_limit_flight_drones--;
                             }
                             if (item_number == 7)
                             {
@@ -762,11 +762,11 @@ namespace IngameScript
                             }
                             if (item_number == 9)
                             {
-                                temp_limit_coreout = temp_limit_coreout - 1;
+                                temp_limit_coreout--;
                             }
                             if (item_number == 10)
                             {
-                                temp_confirmval_2 = temp_confirmval_2 - 1;
+                                temp_confirmval_2--;
                             }
                             has_decreased = true;
                         }
@@ -802,7 +802,7 @@ namespace IngameScript
                             }
                             if (item_number == 6)
                             {
-                                temp_limit_flight_drones = temp_limit_flight_drones - 1;
+                                temp_limit_flight_drones--;
                             }
                             if (item_number == 7)
                             {
@@ -814,11 +814,11 @@ namespace IngameScript
                             }
                             if (item_number == 9)
                             {
-                                temp_limit_coreout = temp_limit_coreout - 1;
+                                temp_limit_coreout--;
                             }
                             if (item_number == 10)
                             {
-                                temp_confirmval_2 = temp_confirmval_2 - 1;
+                                temp_confirmval_2--;
                             }
                             has_decreased = true;
                         }
@@ -958,7 +958,23 @@ namespace IngameScript
             }
 
             new_ignore_depth = ignore_depth + temp_ignore_depth;
-
+            //flight drone limit enable manage
+            if (temp_limit_flight_drones < 0)
+            {
+                temp_limit_flight_drones = 1;
+            }
+            if (temp_limit_flight_drones > 1)
+            {
+                temp_limit_flight_drones = 0;
+            }
+            if (temp_limit_flight_drones == 0)
+            {
+                limit_display = "No";
+            }
+            if (temp_limit_flight_drones == 1)
+            {
+                limit_display = "Yes";
+            }
             new_int_limit_flight_drones = temp_limit_flight_drones + read_limit_flight_drones;
             if (new_int_limit_flight_drones < 0)
             {
@@ -976,6 +992,14 @@ namespace IngameScript
             {
                 new_limit_flight_drones = true;
             }
+            if (new_int_limit_flight_drones == 0)
+            {
+                limit_display = "No";
+            }
+            if (new_int_limit_flight_drones == 1)
+            {
+                limit_display = "Yes";
+            }
 
             new_hard_drone_limit = hard_drone_limit + temp_hard_drone_limit;
             if (new_hard_drone_limit < 1)
@@ -989,10 +1013,28 @@ namespace IngameScript
                 new_flight_factor = 0;
             }
 
+
             new_skipbores = skipbores + temp_skipbores;
             if (new_skipbores < 0)
             {
                 new_skipbores = 0;
+            }
+            //coreout management
+            if (temp_limit_coreout < 0)
+            {
+                temp_limit_coreout = 1;
+            }
+            if (temp_limit_coreout > 1)
+            {
+                temp_limit_coreout = 0;
+            }
+            if (temp_limit_coreout == 0)
+            {
+                core_display = "No";
+            }
+            if (temp_limit_coreout == 1)
+            {
+                core_display = "Yes";
             }
             new_int_limit_coreout = temp_limit_coreout + read_limit_coreout;
             if (new_int_limit_coreout < 0)
@@ -1011,7 +1053,15 @@ namespace IngameScript
             {
                 new_limit_coreout = true;
             }
-
+            if (new_int_limit_coreout == 0)
+            {
+                core_display = "No";
+            }
+            if (new_int_limit_coreout == 1)
+            {
+                core_display = "Yes";
+            }
+            //cancel management
             if (temp_cancel < 0)
             {
                 temp_cancel = 1;
@@ -1029,6 +1079,8 @@ namespace IngameScript
                 cancel_display = "Yes";
             }
 
+
+            //confirm management
             if (temp_confirmval_1 < 0)
             {
                 temp_confirmval_1 = 1;
@@ -1063,22 +1115,8 @@ namespace IngameScript
                 confirm_sel_2 = false;
             }
 
-            if (new_int_limit_flight_drones == 0)
-            {
-                limit_display = "No";
-            }
-            if (new_int_limit_flight_drones == 1)
-            {
-                limit_display = "Yes";
-            }
-            if (new_int_limit_coreout == 0)
-            {
-                core_display = "No";
-            }
-            if (new_int_limit_coreout == 1)
-            {
-                core_display = "Yes";
-            }
+
+            //confirm display
             if (confirm_sel_1)
             {
                 displayconfirm_1 = "Yes";
