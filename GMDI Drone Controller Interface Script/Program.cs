@@ -48,7 +48,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
         
-        string ver = "V0.314A";
+        string ver = "V0.315A";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -2070,6 +2070,7 @@ namespace IngameScript
                 if (temp_id[0] != null)
                 {
                     temp_id_name = temp_id[0];
+                    drone_tag = temp_id_name;
                     if (temp_id_name == "" || temp_id_name == null)
                     {
                         temp_id_name = drone_tag;
@@ -2087,6 +2088,7 @@ namespace IngameScript
                 if (temp_id[1] != null)
                 {
                     temp_id_name_2 = temp_id[1];
+                    secondary = temp_id_name_2;
                     if (temp_id_name_2 == null)
                     {
                         temp_id_name_2 = secondary;
@@ -2105,8 +2107,8 @@ namespace IngameScript
                 temp_id_name_2 = secondary;
                 Echo($"Resorting to default config {temp_id_name} {temp_id_name_2}.");
             }
-            drone_tag = temp_id_name;
-            secondary = temp_id_name_2;
+            
+            
             Echo($"Drone info:{drone_tag}");
             drone_controller_tag = "[" + drone_tag + " " + comms + "]";
             display_main_tag = "[" + drone_tag + " " + intfs + " " + postfix + "]";
