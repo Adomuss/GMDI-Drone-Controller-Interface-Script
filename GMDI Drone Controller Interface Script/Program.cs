@@ -48,7 +48,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
         
-        string ver = "V0.315A";
+        string ver = "V0.317A";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -264,7 +264,7 @@ namespace IngameScript
                         drone_custom_data_check(checker, i);
                         if (drone_tag == "" || drone_tag == null)
                         {
-                            Echo($"Invalid name for drone_tag {drone_tag}. please add vailid drone tag (drone group name) to antenna custom data");
+                            Echo($"Invalid name for drone_tag {drone_tag}. please add vailid drone tag (drone group name) to antenna custom data e.g. 'SWRM_D:Atlas:', '<drone_tag>:<ship_name>:");
                             return;
                         }                        
                         at_tg.Add(at_all[i]);
