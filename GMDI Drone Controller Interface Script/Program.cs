@@ -48,7 +48,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
         
-        string ver = "V0.318A";
+        string ver = "V0.319A";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -240,7 +240,7 @@ namespace IngameScript
                 item_line_5.Add("---");
                 item_line_6.Add("---");
                 item_line_7.Add("Cancel:");
-                item_line_8.Add("Menu:");
+                item_line_8.Add("Main Menu:");
                 item_line_9.Add("---");
                 item_line_10.Add("---:");
                 item_line_11.Add("Confirm:");
@@ -256,7 +256,7 @@ namespace IngameScript
                 item_line_7.Add("In-Flight Hard Limit:");
                 item_line_8.Add("In-Flight Factor:");
                 item_line_9.Add("Core out:");
-                item_line_10.Add("Menu:");
+                item_line_10.Add("Main Menu:");
                 item_line_11.Add("Confirm:");
                 menu_level = 0;
                 item_number = 0;
@@ -2000,8 +2000,7 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_8} 9.  {item_line_8[menu_level]} {menu_display}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_9} ..  {item_line_9[menu_level]}");
-                display_view.Append('\n');
+                display_view.Append($"{line_highlight_9} ..  {item_line_9[menu_level]}");                
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_11} 11. {item_line_11[menu_level]} {displayconfirm_1}");                
                 if (confirm_command)
@@ -2039,8 +2038,7 @@ namespace IngameScript
                 display_view.Append($"{line_highlight_9} 10. {item_line_9[menu_level]} {core_display}");
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_10} 11. {item_line_10[menu_level]} {menu_display}");
-                display_view.Append('\n');
-                display_view.Append('\n');
+                display_view.Append('\n');                
                 display_view.Append($"{line_highlight_11} 12. {item_line_11[menu_level]} {displayconfirm_2}");
                 if (confirm_send)
                 {
