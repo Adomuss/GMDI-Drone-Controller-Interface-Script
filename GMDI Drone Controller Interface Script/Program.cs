@@ -48,7 +48,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
         
-        string ver = "V0.319A";
+        string ver = "V0.320A";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -66,21 +66,28 @@ namespace IngameScript
         bool data_valid = false;
         IMyProgrammableBlock controller_actual;
         string last_command = "";
-        string custom_data_1;
-        string custom_data_2;
-        string custom_data_3;
-        string custom_data_4;
-        string custom_data_5;
-        string custom_data_6;
-        string custom_data_7;
-        string custom_data_8;
-        string custom_data_9;
-        string custom_data_10;
-        string custom_data_11;
-        string custom_data_12;
-        string custom_data_13;
-        string custom_data_14;
-        string custom_data_15;
+        string customData1;
+        string customData2;
+        string customData3;
+        string customData4;
+        string customData5;
+        string customData6;
+        string customData7;
+        string customData8;
+        string customData9;
+        string customData10;
+        string customData11;
+        string customData12;
+        string customData13;
+        string customData14;
+        string customData15;
+        string customData16;
+        string customData17;
+        string customData18;
+        string customData19;
+        string customData20;
+        string customData21;
+        string customData22;
         double ignore_depth = 0.0;
         bool limit_flight_drones = false;
         bool limit_coreout = false;
@@ -109,6 +116,7 @@ namespace IngameScript
         int temp_skipbores;
         int temp_limit_coreout;
         int temp_cancel = 0;
+        int temp_align_data_keep = 0;
         int temp_menu = 0;
         bool confirm_send = false;
         bool confirm_command = false;
@@ -137,6 +145,7 @@ namespace IngameScript
         int new_int_limit_coreout = 0;
         int temp_confirmval_1 = 0;
         int temp_confirmval_2 = 0;
+        double surfaceDistance = 0.0;
         List<string> item_line_0;
         List<string> item_line_1;
         List<string> item_line_2;
@@ -149,6 +158,7 @@ namespace IngameScript
         List<string> item_line_9;
         List<string> item_line_10;
         List<string> item_line_11;
+        List<string> item_line_12;
         List<string> scroll_command_item;
         int scroll_item_val = 0;
         int scroll_item_val_min_limit = 0;
@@ -165,6 +175,7 @@ namespace IngameScript
         string line_highlight_9 = "[ ]";
         string line_highlight_10 = "[ ]";
         string line_highlight_11 = "[ ]";
+        string line_highlight_12 = "[ ]";
         string icon = "";
         string temp_id_name;
         string temp_id_name_2;
@@ -179,6 +190,12 @@ namespace IngameScript
         List<IMyProgrammableBlock> program_blocks_tag;
         List<IMyRadioAntenna> at_all;
         List<IMyRadioAntenna> at_tg;
+        Vector3D alignGPSCoordinates;
+        bool customDataAlignTargetValid;
+        string align_display = "";
+        
+
+
         public void Save()
         {
         }
@@ -188,127 +205,14 @@ namespace IngameScript
             IMyGridTerminalSystem gts = GridTerminalSystem as IMyGridTerminalSystem;
             if (!setup_complete)
             {
-                drone_controller_tag = "[" + drone_tag + " " + comms + "]";
-                display_main_tag = "[" + drone_tag + " " + intfs + " " + postfix + "]";
-                ant_tg = "[" + drone_tag + " " + comms + "]";
-                secondary_tag = $"[{secondary}]";
-                item_line_0 = new List<string>();
-                item_line_1 = new List<string>();
-                item_line_2 = new List<string>();
-                item_line_3 = new List<string>();
-                item_line_4 = new List<string>();
-                item_line_5 = new List<string>();
-                item_line_6 = new List<string>();
-                item_line_7 = new List<string>();
-                item_line_8 = new List<string>();
-                item_line_9 = new List<string>();
-                item_line_10 = new List<string>();
-                item_line_11 = new List<string>();
-                scroll_command_item = new List<string>();
-                display_view = new StringBuilder();
-                mcd_new = new StringBuilder();
-                //scroll command item text                
-                scroll_command_item.Add("Initialize mining grid");
-                scroll_command_item.Add("Reset drones");
-                scroll_command_item.Add("Run mining job");
-                scroll_command_item.Add("Recall drones to dock");
-                scroll_command_item.Add("Undock drones");
-                scroll_command_item.Add("Freeze command (dev)");
-                scroll_command_item.Add("Stop command (dev)");
-                scroll_command_item.Add("");
-
-                //menu text - level 0
-                item_line_0.Add("Mining Job Configuration");
-                item_line_1.Add("Command Menu");
-                item_line_2.Add("");
-                item_line_3.Add("");
-                item_line_4.Add("");
-                item_line_5.Add("");
-                item_line_6.Add("");
-                item_line_7.Add("");
-                item_line_8.Add("");
-                item_line_9.Add("");
-                item_line_10.Add("");
-                item_line_11.Add("");
-
-                //menu text - level 1
-                item_line_0.Add("Command:");
-                item_line_1.Add("---");
-                item_line_2.Add("---");
-                item_line_3.Add("---");
-                item_line_4.Add("---");
-                item_line_5.Add("---");
-                item_line_6.Add("---");
-                item_line_7.Add("Cancel:");
-                item_line_8.Add("Main Menu:");
-                item_line_9.Add("---");
-                item_line_10.Add("---:");
-                item_line_11.Add("Confirm:");
-
-                //menu text - level 2
-                item_line_0.Add("Number Grid X positions:");
-                item_line_1.Add("Number Grid Y positions:");
-                item_line_2.Add("Grid Spread:");
-                item_line_3.Add("Skip Bores:");
-                item_line_4.Add("Drill Depth:");
-                item_line_5.Add("Ignore Depth:");
-                item_line_6.Add("Limit drones in-flight:");
-                item_line_7.Add("In-Flight Hard Limit:");
-                item_line_8.Add("In-Flight Factor:");
-                item_line_9.Add("Core out:");
-                item_line_10.Add("Main Menu:");
-                item_line_11.Add("Confirm:");
-                menu_level = 0;
-                item_number = 0;
-                Me.CustomData = "";
-                at_all = new List<IMyRadioAntenna>();
-                at_tg = new List<IMyRadioAntenna>();
-                gts.GetBlocksOfType<IMyRadioAntenna>(at_all, b => b.CubeGrid == Me.CubeGrid);
-                for (int i = 0; i < at_all.Count; i++)
-                {
-                    if (at_all[i].CustomName.Contains(comms))
-                    {
-                        string checker = at_all[i].CustomData;
-                        drone_custom_data_check(checker, i);
-                        if (drone_tag == "" || drone_tag == null)
-                        {
-                            Echo($"Invalid name for drone_tag {drone_tag}. please add vailid drone tag (drone group name) to antenna custom data e.g. 'SWRM_D:Atlas:', '<drone_tag>:<ship_name>:");
-                            return;
-                        }                        
-                        at_tg.Add(at_all[i]);
-                    }
-                }
-                at_all.Clear();
-                display_all = new List<IMyTerminalBlock>();
-                display_tag_main = new List<IMyTerminalBlock>();
-                gts.GetBlocksOfType<IMyTerminalBlock>(display_all);
-                for (int i = 0; i < display_all.Count; i++)
-                {
-                    if (display_all[i].CustomName.Contains(display_main_tag))
-                    {
-                        display_tag_main.Add(display_all[i]);
-                    }
-                }
-                display_all.Clear();
-                program_blocks_all = new List<IMyProgrammableBlock>();
-                program_blocks_tag = new List<IMyProgrammableBlock>();
-                gts.GetBlocksOfType<IMyProgrammableBlock>(program_blocks_all);
-                for (int i = 0; i < program_blocks_all.Count; i++)
-                {
-                    if (program_blocks_all[i].CustomName.Contains(drone_controller_tag))
-                    {
-                        program_blocks_tag.Add(program_blocks_all[i]);
-                    }
-                }
-                program_blocks_all.Clear();
-                setup_complete = true;
-                Echo("Setup complete!");
+                Setup(gts);
             }
 
 
             if (display_tag_main.Count <= 0 || display_tag_main[0] == null)
             {
                 Echo($"Main Displays with tag '{display_main_tag}' not found");
+                setup_complete = false;
                 return;
             }
             display_actual = display_tag_main[0];
@@ -323,11 +227,18 @@ namespace IngameScript
             if (surface == null)
             {
                 Echo($"Panel:'{scnpanel}' on '{display_main_tag}' not found");
+                setup_complete = false;
                 return;
             }
             if (program_blocks_tag.Count <= 0 || program_blocks_tag[0] == null)
             {
                 Echo($"Drone controller with with tag '{drone_controller_tag}' not found");
+                setup_complete = false;
+                return;
+            }
+            if (!setup_complete)
+            {
+                Echo($"Setup not complete");
                 return;
             }
             controller_actual = program_blocks_tag[0];
@@ -486,7 +397,7 @@ namespace IngameScript
                             {
                                 temp_menu++;
                             }
-                            if (item_number == 11)
+                            if (item_number == 12)
                             {
                                 temp_confirmval_1++;
                             }
@@ -536,9 +447,13 @@ namespace IngameScript
                             }
                             if (item_number == 10)
                             {
-                                temp_menu++;
+                                temp_align_data_keep++;
                             }
                             if (item_number == 11)
+                            {
+                                temp_menu++;
+                            }
+                            if (item_number == 12)
                             {
                                 temp_confirmval_2++;
                             }
@@ -592,9 +507,13 @@ namespace IngameScript
                             }
                             if (item_number == 10)
                             {
-                                temp_menu++;
+                                temp_align_data_keep++;
                             }
                             if (item_number == 11)
+                            {
+                                temp_menu++;
+                            }
+                            if (item_number == 12)
                             {
                                 temp_confirmval_2++;
                             }
@@ -648,9 +567,13 @@ namespace IngameScript
                             }
                             if (item_number == 10)
                             {
-                                temp_menu++;
+                                temp_align_data_keep++;
                             }
                             if (item_number == 11)
+                            {
+                                temp_menu++;
+                            }
+                            if (item_number == 12)
                             {
                                 temp_confirmval_2++;
                             }
@@ -692,7 +615,7 @@ namespace IngameScript
                             {
                                 temp_menu--;
                             }
-                            if (item_number == 11)
+                            if (item_number == 12)
                             {
                                 temp_confirmval_1--;
                             }
@@ -742,9 +665,13 @@ namespace IngameScript
                             }
                             if (item_number == 10)
                             {
-                                temp_menu--;
+                                temp_align_data_keep--;
                             }
                             if (item_number == 11)
+                            {
+                                temp_menu--;
+                            }
+                            if (item_number == 12)
                             {
                                 temp_confirmval_2--;
                             }
@@ -798,9 +725,13 @@ namespace IngameScript
                             }
                             if (item_number == 10)
                             {
-                                temp_menu--;
+                                temp_align_data_keep--;
                             }
                             if (item_number == 11)
+                            {
+                                temp_menu--;
+                            }
+                            if (item_number == 12)
                             {
                                 temp_confirmval_2--;
                             }
@@ -854,9 +785,13 @@ namespace IngameScript
                             }
                             if (item_number == 10)
                             {
-                                temp_menu--;
+                                temp_align_data_keep--;
                             }
                             if (item_number == 11)
+                            {
+                                temp_menu--;
+                            }
+                            if (item_number == 12)
                             {
                                 temp_confirmval_2--;
                             }
@@ -889,7 +824,7 @@ namespace IngameScript
                     {
                         iteration_view = "1";
                     }
-                    if (item_number == 7 || item_number == 8 || item_number == 9 || item_number == 10 || item_number == 11)
+                    if (item_number == 7 || item_number == 8 || item_number == 9 || item_number == 10 || item_number == 11 || item_number == 12)
                     {
                         iteration_view = "Yes/No";
                     }
@@ -923,6 +858,10 @@ namespace IngameScript
                     {
                         iteration_view = "Yes/No";
                     }
+                    if (item_number == 12)
+                    {
+                        iteration_view = "Yes/No";
+                    }
                 }
                 
                 if (iteration_val == 1)
@@ -951,6 +890,10 @@ namespace IngameScript
                     {
                         iteration_view = "Yes/No";
                     }
+                    if (item_number == 12)
+                    {
+                        iteration_view = "Yes/No";
+                    }
                 }
                 
                 if (iteration_val == 2)
@@ -976,6 +919,10 @@ namespace IngameScript
                         iteration_view = "Yes/No";
                     }
                     if (item_number == 11)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                    if (item_number == 12)
                     {
                         iteration_view = "Yes/No";
                     }
@@ -1147,7 +1094,23 @@ namespace IngameScript
             {
                 menu_display = "Yes";
             }
-
+            //temp align management
+            if (temp_align_data_keep < 0)
+            {
+                temp_align_data_keep = 1;
+            }
+            if (temp_align_data_keep > 1)
+            {
+                temp_align_data_keep = 0;
+            }
+            if (temp_align_data_keep == 0)
+            {
+                align_display = "No";
+            }
+            if (temp_align_data_keep == 1)
+            {
+                align_display = "Yes";
+            }
 
             //confirm management
             if (temp_confirmval_1 < 0)
@@ -1232,13 +1195,13 @@ namespace IngameScript
             {
                 if (menu_level == 1)
                 {
-                    if (item_number == 11 && !confirm_sel_1)
+                    if (item_number == 12 && !confirm_sel_1)
                     {
                         item_number = 0;
                         confirm_command = false;
                         argument = "";
                     }
-                    if (item_number == 11 && confirm_sel_1)
+                    if (item_number == 12 && confirm_sel_1)
                     {
                         if (temp_cancel == 1)
                         {
@@ -1254,7 +1217,8 @@ namespace IngameScript
                             item_number = 0;
                             scroll_item_val = 0;
                             temp_confirmval_1 = 0;
-                            temp_cancel = 0;                            
+                            temp_cancel = 0;
+                            temp_align_data_keep = 0;
                             confirm_sel_1 = false;
                             argument = "";
                         }
@@ -1267,6 +1231,7 @@ namespace IngameScript
                             temp_confirmval_1 = 0;
                             temp_cancel = 0;
                             temp_menu = 0;
+                            temp_align_data_keep = 0;
                             confirm_sel_1 = false;
                             iteration_val = 0;
                             argument = "";
@@ -1279,13 +1244,13 @@ namespace IngameScript
                 //if menu is job configuration
                 if (menu_level == 2)
                 {
-                    if (item_number == 11 && !confirm_sel_2)
+                    if (item_number == 12 && !confirm_sel_2)
                     {
                         incr_item();
                         confirm_send = false;
                         argument = "";
                     }
-                    if (item_number == 11 && confirm_sel_2)
+                    if (item_number == 12 && confirm_sel_2)
                     {
                         if (temp_menu == 0)
                         {
@@ -1325,6 +1290,10 @@ namespace IngameScript
                                 mcd_new.Append(":");
                                 mcd_new.Append(new_limit_coreout);
                                 mcd_new.Append(":");
+                                if (customDataAlignTargetValid && temp_align_data_keep==1)
+                                {
+                                    mcd_new.Append($"GPS:DDT:{alignGPSCoordinates.X}:{alignGPSCoordinates.Y}:{alignGPSCoordinates.Z}:#FF75C9F1:{surfaceDistance}:");
+                                }
                             }
                             controller_actual.CustomData = mcd_new.ToString();
                             confirm_send = true;
@@ -1339,6 +1308,7 @@ namespace IngameScript
                             temp_limit_flight_drones = 0;
                             temp_limit_coreout = 0;
                             temp_menu = 0;
+                            temp_align_data_keep = 0;
                             temp_confirmval_2 = 0;
                             confirm_sel_2 = false;
                             incr_item();
@@ -1361,6 +1331,7 @@ namespace IngameScript
                             temp_limit_flight_drones = 0;
                             temp_limit_coreout = 0;
                             temp_menu = 0;
+                            temp_align_data_keep = 0;
                             temp_confirmval_2 = 0;
                             confirm_sel_2 = false;                            
                             argument = "";
@@ -1400,7 +1371,7 @@ namespace IngameScript
                 {
                     if (item_number == 8)
                     {
-                        item_number = 11;
+                        item_number = 12;
                         argument = "";
                     }
                 }
@@ -1409,7 +1380,7 @@ namespace IngameScript
             {
                 if (menu_level == 2)
                 {
-                    if (item_number >= 0 && item_number <= 11)
+                    if (item_number >= 0 && item_number <= 12)
                     {
                         incr_item();
                         argument = "";
@@ -1437,29 +1408,159 @@ namespace IngameScript
             
         }
 
+        private void Setup(IMyGridTerminalSystem gts)
+        {
+            drone_controller_tag = "[" + drone_tag + " " + comms + "]";
+            display_main_tag = "[" + drone_tag + " " + intfs + " " + postfix + "]";
+            ant_tg = "[" + drone_tag + " " + comms + "]";
+            secondary_tag = $"[{secondary}]";
+            item_line_0 = new List<string>();
+            item_line_1 = new List<string>();
+            item_line_2 = new List<string>();
+            item_line_3 = new List<string>();
+            item_line_4 = new List<string>();
+            item_line_5 = new List<string>();
+            item_line_6 = new List<string>();
+            item_line_7 = new List<string>();
+            item_line_8 = new List<string>();
+            item_line_9 = new List<string>();
+            item_line_10 = new List<string>();
+            item_line_11 = new List<string>();
+            item_line_12 = new List<string>();
+            scroll_command_item = new List<string>();
+            display_view = new StringBuilder();
+            mcd_new = new StringBuilder();
+            //scroll command item text                
+            scroll_command_item.Add("Initialize mining grid");
+            scroll_command_item.Add("Reset drones");
+            scroll_command_item.Add("Run mining job");
+            scroll_command_item.Add("Recall drones to dock");
+            scroll_command_item.Add("Undock drones");
+            scroll_command_item.Add("Freeze command (dev)");
+            scroll_command_item.Add("Stop command (dev)");
+            scroll_command_item.Add("");
+
+            //menu text - level 0
+            item_line_0.Add("Mining Job Configuration");
+            item_line_1.Add("Command Menu");
+            item_line_2.Add("");
+            item_line_3.Add("");
+            item_line_4.Add("");
+            item_line_5.Add("");
+            item_line_6.Add("");
+            item_line_7.Add("");
+            item_line_8.Add("");
+            item_line_9.Add("");
+            item_line_10.Add("");
+            item_line_11.Add("");
+            item_line_12.Add("");
+
+            //menu text - level 1
+            item_line_0.Add("Command:");
+            item_line_1.Add("---");
+            item_line_2.Add("---");
+            item_line_3.Add("---");
+            item_line_4.Add("---");
+            item_line_5.Add("---");
+            item_line_6.Add("---");
+            item_line_7.Add("Cancel:");
+            item_line_8.Add("Main Menu:");
+            item_line_9.Add("---");
+            item_line_10.Add("---");
+            item_line_11.Add("---:");
+            item_line_12.Add("Confirm:");
+
+            //menu text - level 2
+            item_line_0.Add("Number Grid X positions:");
+            item_line_1.Add("Number Grid Y positions:");
+            item_line_2.Add("Grid Spread:");
+            item_line_3.Add("Skip Bores:");
+            item_line_4.Add("Drill Depth:");
+            item_line_5.Add("Ignore Depth:");
+            item_line_6.Add("Limit drones in-flight:");
+            item_line_7.Add("In-Flight Hard Limit:");
+            item_line_8.Add("In-Flight Factor:");
+            item_line_9.Add("Core out:");
+            item_line_10.Add("Align data:");
+            item_line_11.Add("Main Menu:");
+            item_line_12.Add("Confirm:");
+            menu_level = 0;
+            item_number = 0;
+            Me.CustomData = "";
+            at_all = new List<IMyRadioAntenna>();
+            at_tg = new List<IMyRadioAntenna>();
+            gts.GetBlocksOfType<IMyRadioAntenna>(at_all, b => b.CubeGrid == Me.CubeGrid);
+            for (int i = 0; i < at_all.Count; i++)
+            {
+                if (at_all[i].CustomName.Contains(comms))
+                {
+                    string checker = at_all[i].CustomData;
+                    drone_custom_data_check(checker, i);
+                    if (drone_tag == "" || drone_tag == null)
+                    {
+                        Echo($"Invalid name for drone_tag {drone_tag}. please add vailid drone tag (drone group name) to antenna custom data e.g. 'SWRM_D:Atlas:', '<drone_tag>:<ship_name>:");
+                        return;
+                    }
+                    at_tg.Add(at_all[i]);
+                }
+            }
+            at_all.Clear();
+            display_all = new List<IMyTerminalBlock>();
+            display_tag_main = new List<IMyTerminalBlock>();
+            gts.GetBlocksOfType<IMyTerminalBlock>(display_all);
+            for (int i = 0; i < display_all.Count; i++)
+            {
+                if (display_all[i].CustomName.Contains(display_main_tag))
+                {
+                    display_tag_main.Add(display_all[i]);
+                }
+            }
+            display_all.Clear();
+            program_blocks_all = new List<IMyProgrammableBlock>();
+            program_blocks_tag = new List<IMyProgrammableBlock>();
+            gts.GetBlocksOfType<IMyProgrammableBlock>(program_blocks_all);
+            for (int i = 0; i < program_blocks_all.Count; i++)
+            {
+                if (program_blocks_all[i].CustomName.Contains(drone_controller_tag))
+                {
+                    program_blocks_tag.Add(program_blocks_all[i]);
+                }
+            }
+            program_blocks_all.Clear();
+            setup_complete = true;
+            Echo("Setup complete!");
+        }
+
         void GetCustomData()
         {
             // get custom data from programmable block
-            String[] gps_command = controller_actual.CustomData.Split(':');
+            String[] gpsCommand = controller_actual.CustomData.Split(':');
 
             //Define GPS coordinates from 
-            if (gps_command.Length < 10)
+            if (gpsCommand.Length < 10)
             {
-                custom_data_1 = "";
-                custom_data_2 = "";
-                custom_data_3 = "";
-                custom_data_4 = "";
-                custom_data_5 = "";
-                custom_data_6 = "";
-                custom_data_7 = "";
-                custom_data_8 = "";
-                custom_data_9 = "";
-                custom_data_10 = "";
-                custom_data_11 = "";
-                custom_data_12 = "";
-                custom_data_13 = "";
-                custom_data_14 = "";
-                custom_data_15 = "";
+                customData1 = "";
+                customData2 = "";
+                customData3 = "";
+                customData4 = "";
+                customData5 = "";
+                customData6 = "";
+                customData7 = "";
+                customData8 = "";
+                customData9 = "";
+                customData10 = "";
+                customData11 = "";
+                customData12 = "";
+                customData13 = "";
+                customData14 = "";
+                customData15 = "";
+                customData16 = "";
+                customData17 = "";
+                customData18 = "";
+                customData19 = "";
+                customData20 = "";
+                customData21 = "";
+                customData22 = "";
                 Echo("Please use prospector to assign a mining location");
                 data_valid = false;
                 return;
@@ -1468,47 +1569,47 @@ namespace IngameScript
             {
                 data_valid = true;
             }
-            if (gps_command.Length > 4)
+            if (gpsCommand.Length > 4)
             {
-                main_gps_coords = new Vector3D(Double.Parse(gps_command[2]), Double.Parse(gps_command[3]), Double.Parse(gps_command[4]));
-                custom_data_1 = gps_command[1];
-                custom_data_2 = gps_command[2];
-                custom_data_3 = gps_command[3];
-                custom_data_4 = gps_command[4];
-                custom_data_5 = gps_command[5];
+                main_gps_coords = new Vector3D(Double.Parse(gpsCommand[2]), Double.Parse(gpsCommand[3]), Double.Parse(gpsCommand[4]));
+                customData1 = gpsCommand[1];
+                customData2 = gpsCommand[2];
+                customData3 = gpsCommand[3];
+                customData4 = gpsCommand[4];
+                customData5 = gpsCommand[5];
             }
 
-            if (gps_command.Length < 6)
+            if (gpsCommand.Length < 6)
             {
-                custom_data_6 = "";
+                customData6 = "";
                 drillshaft_length = 1.0;
-                custom_data_7 = "";
+                customData7 = "";
                 gridsize = 0.0;
-                custom_data_8 = "";
+                customData8 = "";
                 numPointsX = 0;
-                custom_data_9 = "";
+                customData9 = "";
                 numPointsY = 0;
-                custom_data_10 = "";
+                customData10 = "";
                 ignore_depth = 0.0;
-                custom_data_11 = "";
+                customData11 = "";
                 limit_flight_drones = false;
-                custom_data_12 = "";
+                customData12 = "";
                 flight_factor = 1;
-                custom_data_13 = "";
+                customData13 = "";
                 hard_drone_limit = 6;
-                custom_data_14 = "";
+                customData14 = "";
                 skipbores = 0;
-                custom_data_15 = "";
+                customData15 = "";
                 limit_coreout = false;
                 //coreout = 0;
                 return;
             }
-            if (gps_command.Length > 5)
+            if (gpsCommand.Length > 5)
             {
-                if (gps_command.Length > 5)
+                if (gpsCommand.Length > 5)
                 {
-                    custom_data_6 = gps_command[6];
-                    command_dist = custom_data_6;
+                    customData6 = gpsCommand[6];
+                    command_dist = customData6;
                     if (Double.TryParse(command_dist, out drillshaft_length))
                     {
                         Double.TryParse(command_dist, out drillshaft_length);
@@ -1522,41 +1623,41 @@ namespace IngameScript
                 }
                 else
                 {
-                    custom_data_6 = "";
+                    customData6 = "";
                     drillshaft_length = 1.0;
                 }
             }
 
-            if (gps_command.Length < 7)
+            if (gpsCommand.Length < 7)
             {
-                custom_data_7 = "";
+                customData7 = "";
                 gridsize = 0.0;
-                custom_data_8 = "";
+                customData8 = "";
                 numPointsX = 0;
-                custom_data_9 = "";
+                customData9 = "";
                 numPointsY = 0;
-                custom_data_10 = "";
+                customData10 = "";
                 ignore_depth = 0.0;
-                custom_data_11 = "";
+                customData11 = "";
                 limit_flight_drones = false;
-                custom_data_12 = "";
+                customData12 = "";
                 flight_factor = 1;
-                custom_data_13 = "";
+                customData13 = "";
                 hard_drone_limit = 6;
-                custom_data_14 = "";
+                customData14 = "";
                 skipbores = 0;
-                custom_data_15 = "";
+                customData15 = "";
                 limit_coreout = false;
                 //coreout = 0;
                 return;
             }
 
-            if (gps_command.Length > 6)
+            if (gpsCommand.Length > 6)
             {
-                custom_data_7 = gps_command[7];
-                if (double.TryParse(custom_data_7, out gridsize))
+                customData7 = gpsCommand[7];
+                if (double.TryParse(customData7, out gridsize))
                 {
-                    double.TryParse(custom_data_7, out gridsize);
+                    double.TryParse(customData7, out gridsize);
                 }
                 else
                 {
@@ -1565,39 +1666,39 @@ namespace IngameScript
             }
             else
             {
-                custom_data_7 = "";
+                customData7 = "";
                 gridsize = 0.0;
             }
 
-            if (gps_command.Length < 8)
+            if (gpsCommand.Length < 8)
             {
-                custom_data_7 = "";
+                customData7 = "";
                 gridsize = 0.0;
-                custom_data_8 = "";
+                customData8 = "";
                 numPointsX = 0;
-                custom_data_9 = "";
+                customData9 = "";
                 numPointsY = 0;
-                custom_data_10 = "";
+                customData10 = "";
                 ignore_depth = 0.0;
-                custom_data_11 = "";
+                customData11 = "";
                 limit_flight_drones = false;
-                custom_data_12 = "";
+                customData12 = "";
                 flight_factor = 1;
-                custom_data_13 = "";
+                customData13 = "";
                 hard_drone_limit = 6;
-                custom_data_14 = "";
+                customData14 = "";
                 skipbores = 0;
-                custom_data_15 = "";
+                customData15 = "";
                 limit_coreout = false;
                 //coreout = 0;
                 return;
             }
-            if (gps_command.Length > 7)
+            if (gpsCommand.Length > 7)
             {
-                custom_data_8 = gps_command[8];
-                if (int.TryParse(custom_data_8, out numPointsX))
+                customData8 = gpsCommand[8];
+                if (int.TryParse(customData8, out numPointsX))
                 {
-                    int.TryParse(custom_data_8, out numPointsX);
+                    int.TryParse(customData8, out numPointsX);
                 }
                 else
                 {
@@ -1606,40 +1707,40 @@ namespace IngameScript
             }
             else
             {
-                custom_data_8 = "";
+                customData8 = "";
                 numPointsX = 0;
             }
 
-            if (gps_command.Length < 9)
+            if (gpsCommand.Length < 9)
             {
-                custom_data_7 = "";
+                customData7 = "";
                 gridsize = 0.0;
-                custom_data_8 = "";
+                customData8 = "";
                 numPointsX = 0;
-                custom_data_9 = "";
+                customData9 = "";
                 numPointsY = 0;
-                custom_data_10 = "";
+                customData10 = "";
                 ignore_depth = 0.0;
-                custom_data_11 = "";
+                customData11 = "";
                 limit_flight_drones = false;
-                custom_data_12 = "";
+                customData12 = "";
                 flight_factor = 1;
-                custom_data_13 = "";
+                customData13 = "";
                 hard_drone_limit = 6;
-                custom_data_14 = "";
+                customData14 = "";
                 skipbores = 0;
-                custom_data_15 = "";              
+                customData15 = "";
                 limit_coreout = false;
                 //coreout = 0;
                 return;
             }
-            if (gps_command.Length > 8)
+            if (gpsCommand.Length > 8)
             {
-                custom_data_9 = gps_command[9];
+                customData9 = gpsCommand[9];
 
-                if (int.TryParse(custom_data_9, out numPointsY))
+                if (int.TryParse(customData9, out numPointsY))
                 {
-                    int.TryParse(custom_data_9, out numPointsY);
+                    int.TryParse(customData9, out numPointsY);
                 }
                 else
                 {
@@ -1648,34 +1749,34 @@ namespace IngameScript
             }
             else
             {
-                custom_data_9 = "";
+                customData9 = "";
                 numPointsY = 0;
             }
 
 
-            if (gps_command.Length < 10)
+            if (gpsCommand.Length < 10)
             {
-                custom_data_10 = "";
+                customData10 = "";
                 ignore_depth = 0.0;
-                custom_data_11 = "";
+                customData11 = "";
                 limit_flight_drones = false;
-                custom_data_12 = "";
+                customData12 = "";
                 flight_factor = 1;
-                custom_data_13 = "";
+                customData13 = "";
                 hard_drone_limit = 6;
-                custom_data_14 = "";
+                customData14 = "";
                 skipbores = 0;
-                custom_data_15 = "";
+                customData15 = "";
                 limit_coreout = false;
                 //coreout = 0;
                 return;
             }
-            if (gps_command.Length > 9)
+            if (gpsCommand.Length > 9)
             {
-                custom_data_10 = gps_command[10];
-                if (Double.TryParse(custom_data_10, out ignore_depth))
+                customData10 = gpsCommand[10];
+                if (Double.TryParse(customData10, out ignore_depth))
                 {
-                    Double.TryParse(custom_data_10, out ignore_depth);
+                    Double.TryParse(customData10, out ignore_depth);
                 }
                 else
                 {
@@ -1684,31 +1785,31 @@ namespace IngameScript
             }
             else
             {
-                custom_data_10 = "";
+                customData10 = "";
                 ignore_depth = 0.0;
             }
 
-            if (gps_command.Length < 12)
+            if (gpsCommand.Length < 12)
             {
-                custom_data_11 = "";
+                customData11 = "";
                 limit_flight_drones = false;
-                custom_data_12 = "";
+                customData12 = "";
                 flight_factor = 1;
-                custom_data_13 = "";
+                customData13 = "";
                 hard_drone_limit = 6;
-                custom_data_14 = "";
+                customData14 = "";
                 skipbores = 0;
-                custom_data_15 = "";
+                customData15 = "";
                 limit_coreout = false;
                 //coreout = 0;
                 return;
             }
-            if (gps_command.Length > 11)
+            if (gpsCommand.Length > 11)
             {
-                custom_data_11 = gps_command[11];
-                if (bool.TryParse(custom_data_11, out limit_flight_drones))
+                customData11 = gpsCommand[11];
+                if (bool.TryParse(customData11, out limit_flight_drones))
                 {
-                    bool.TryParse(custom_data_11, out limit_flight_drones);
+                    bool.TryParse(customData11, out limit_flight_drones);
                 }
                 else
                 {
@@ -1717,29 +1818,29 @@ namespace IngameScript
             }
             else
             {
-                custom_data_11 = "";
+                customData11 = "";
                 limit_flight_drones = false;
             }
 
-            if (gps_command.Length < 13)
+            if (gpsCommand.Length < 13)
             {
-                custom_data_12 = "";
+                customData12 = "";
                 flight_factor = 1;
-                custom_data_13 = "";
+                customData13 = "";
                 hard_drone_limit = 6;
-                custom_data_14 = "";
+                customData14 = "";
                 skipbores = 0;
-                custom_data_15 = "";
+                customData15 = "";
                 limit_coreout = false;
                 //coreout = 0;
                 return;
             }
-            if (gps_command.Length > 12)
+            if (gpsCommand.Length > 12)
             {
-                custom_data_12 = gps_command[12];
-                if (int.TryParse(custom_data_12, out flight_factor))
+                customData12 = gpsCommand[12];
+                if (int.TryParse(customData12, out flight_factor))
                 {
-                    int.TryParse(custom_data_12, out flight_factor);
+                    int.TryParse(customData12, out flight_factor);
                 }
                 else
                 {
@@ -1748,28 +1849,28 @@ namespace IngameScript
             }
             else
             {
-                custom_data_12 = "";
+                customData12 = "";
                 flight_factor = 1;
             }
 
-            if (gps_command.Length < 14)
+            if (gpsCommand.Length < 14)
             {
-                custom_data_13 = "";
+                customData13 = "";
                 hard_drone_limit = 6;
-                custom_data_14 = "";
+                customData14 = "";
                 skipbores = 0;
-                custom_data_15 = "";
+                customData15 = "";
                 limit_coreout = false;
                 //coreout = 0;
                 return;
             }
 
-            if (gps_command.Length > 13)
+            if (gpsCommand.Length > 13)
             {
-                custom_data_13 = gps_command[13];
-                if (int.TryParse(custom_data_13, out hard_drone_limit))
+                customData13 = gpsCommand[13];
+                if (int.TryParse(customData13, out hard_drone_limit))
                 {
-                    int.TryParse(custom_data_13, out hard_drone_limit);
+                    int.TryParse(customData13, out hard_drone_limit);
                 }
                 else
                 {
@@ -1778,24 +1879,24 @@ namespace IngameScript
             }
             else
             {
-                custom_data_13 = "";
+                customData13 = "";
                 hard_drone_limit = 6;
             }
-            if (gps_command.Length < 15)
+            if (gpsCommand.Length < 15)
             {
-                custom_data_14 = "";
+                customData14 = "";
                 skipbores = 0;
-                custom_data_15 = "";
+                customData15 = "";
                 limit_coreout = false;
                 return;
             }
 
-            if (gps_command.Length > 14)
+            if (gpsCommand.Length > 14)
             {
-                custom_data_14 = gps_command[14];
-                if (int.TryParse(custom_data_14, out skipbores))
+                customData14 = gpsCommand[14];
+                if (int.TryParse(customData14, out skipbores))
                 {
-                    int.TryParse(custom_data_14, out skipbores);
+                    int.TryParse(customData14, out skipbores);
                     data_valid = true;
                 }
                 else
@@ -1805,22 +1906,22 @@ namespace IngameScript
             }
             else
             {
-                custom_data_14 = "";
+                customData14 = "";
                 skipbores = 0;
             }
-            if (gps_command.Length < 16)
+            if (gpsCommand.Length < 16)
             {
-                custom_data_15 = "";
+                customData15 = "";
                 limit_coreout = false;
                 //coreout = 0;
                 return;
             }
-            if (gps_command.Length > 15)
+            if (gpsCommand.Length > 15)
             {
-                custom_data_15 = gps_command[15];
-                if (bool.TryParse(custom_data_15, out limit_coreout))
+                customData15 = gpsCommand[15];
+                if (bool.TryParse(customData15, out limit_coreout))
                 {
-                    bool.TryParse(custom_data_15, out limit_coreout);
+                    bool.TryParse(customData15, out limit_coreout);
                     data_valid = true;
                 }
                 else
@@ -1830,10 +1931,98 @@ namespace IngameScript
             }
             else
             {
-                custom_data_15 = "";
+                customData15 = "";
                 limit_coreout = false;
             }
+            if (gpsCommand.Length > 16)
+            {
+                Echo($"gpsCommandLen:{gpsCommand.Length}");
+                bool targetAlignX;
+                bool targetAlignY;
+                bool targetAlignZ;
+                if (gpsCommand.Length > 16)
+                {
+                    customData16 = gpsCommand[16];
+                }
+                if (gpsCommand.Length > 17)
+                {
+                    customData17 = gpsCommand[17];
+                }
+                if (gpsCommand.Length > 18)
+                {
+                    customData18 = gpsCommand[18];
+                }
+                if (gpsCommand.Length > 19)
+                {
+                    customData19 = gpsCommand[19];
+                }
+                if (gpsCommand.Length > 20)
+                {
+                    customData20 = gpsCommand[20];
+                }
+                if (gpsCommand.Length > 21)
+                {
+                    customData21 = gpsCommand[21];
+                }
+                if (gpsCommand.Length > 22)
+                {
+                    customData22 = gpsCommand[22];
+                }
 
+
+                if (!double.TryParse(customData18, out alignGPSCoordinates.X))
+                {
+                    alignGPSCoordinates.X = 0.0;
+                    customData18 = "";
+                    targetAlignX = false;
+                }
+                else
+                {
+                    targetAlignX = true;
+                }
+                if (!double.TryParse(customData19, out alignGPSCoordinates.Y))
+                {
+                    alignGPSCoordinates.Y = 0.0;
+                    customData19 = "";
+                    targetAlignY = false;
+                }
+                else
+                {
+                    targetAlignY = true;
+                }
+                if (!double.TryParse(customData20, out alignGPSCoordinates.Z))
+                {
+                    alignGPSCoordinates.Z = 0.0;
+                    customData20 = "";
+                    targetAlignZ = false;
+                }
+                else
+                {
+                    targetAlignZ = true;
+                }
+                if (targetAlignX && targetAlignY && targetAlignZ)
+                {
+                    customDataAlignTargetValid = true;
+                }
+                else
+                {
+                    customDataAlignTargetValid = false;
+                }
+                if (gpsCommand.Length > 22)
+                {
+                    if (!double.TryParse(customData22, out surfaceDistance))
+                    {
+                        surfaceDistance = 30.0;
+                        customData22 = "";
+                    }
+                }
+                if (customDataAlignTargetValid && gpsCommand.Length > 16 && gpsCommand.Length < 18)
+                {
+                    customDataAlignTargetValid = false;
+                    // Me.CustomData = tempbro + $"GPS:TGT:{alignGPSCoordinates.X}:{alignGPSCoordinates.Y}:{alignGPSCoordinates.Z}:#F77668:";
+                }
+
+            }
         }
 
         public void LineResolver(int linevalin)
@@ -1934,6 +2123,14 @@ namespace IngameScript
             {
                 line_highlight_11 = "[ ]";
             }
+            if (linevalin == 12)
+            {
+                line_highlight_12 = "[O]";
+            }
+            else
+            {
+                line_highlight_12 = "[ ]";
+            }
 
         }
 
@@ -1970,6 +2167,7 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append('\n');
             }
+            display_view.Append('\n');
             if (!data_valid)
             {
                 display_view.Append('\n');
@@ -2000,9 +2198,9 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_8} 9.  {item_line_8[menu_level]} {menu_display}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_9} ..  {item_line_9[menu_level]}");                
+                display_view.Append($"{line_highlight_9} ..  {item_line_9[menu_level]}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_11} 11. {item_line_11[menu_level]} {displayconfirm_1}");                
+                display_view.Append($"{line_highlight_12} 12. {item_line_12[menu_level]} {displayconfirm_1}");
                 if (confirm_command)
                 {
                     display_view.Append('\n');
@@ -2037,9 +2235,11 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_9} 10. {item_line_9[menu_level]} {core_display}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_10} 11. {item_line_10[menu_level]} {menu_display}");
-                display_view.Append('\n');                
-                display_view.Append($"{line_highlight_11} 12. {item_line_11[menu_level]} {displayconfirm_2}");
+                display_view.Append($"{line_highlight_10} 11. {item_line_10[menu_level]} {align_display}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_11} 12. {item_line_11[menu_level]} {menu_display}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_12} 13. {item_line_12[menu_level]} {displayconfirm_2}");
                 if (confirm_send)
                 {
                     display_view.Append('\n');
@@ -2048,11 +2248,32 @@ namespace IngameScript
                     display_view.Append('\n');
                 }
             }
+            if (data_valid)
+            {
+                display_view.Append('\n');
+                display_view.Append('\n');
+                display_view.Append($"Mining Job Information");
+                display_view.Append('\n');
+                display_view.Append($"-----------");
+                display_view.Append('\n');
+                display_view.Append($"Surface Distance: {surfaceDistance}");                
+                display_view.Append('\n');
+                display_view.Append("Target Coordinates:");
+                display_view.Append('\n');
+                display_view.Append($"X: {Math.Round(main_gps_coords.X, 2)}, Y: {Math.Round(main_gps_coords.Y, 2)}, Z: {Math.Round(main_gps_coords.Z, 2)}");
+                display_view.Append('\n');                               
+                if (customDataAlignTargetValid)
+                {
+                    display_view.Append("Align Coordinates:");
+                    display_view.Append('\n');
+                    display_view.Append($"X: {alignGPSCoordinates.X}, Y: {alignGPSCoordinates.Y}, Z: {alignGPSCoordinates.Z}");
+                    display_view.Append('\n');                    
+                }
 
-
-
-
+            }
         }
+
+        
 
         public void incr_item()
         {
@@ -2068,7 +2289,7 @@ namespace IngameScript
             }
             if (menu_level == 2)
             {
-                item_max_limit = 11;
+                item_max_limit = 12;
                 item_min_limit = 0;
             }
             item_number++;
@@ -2087,12 +2308,12 @@ namespace IngameScript
             }
             if (menu_level == 1)
             {
-                item_max_limit = 11;
+                item_max_limit = 12;
                 item_min_limit = 0;
             }
             if (menu_level == 2)
             {
-                item_max_limit = 11;
+                item_max_limit = 12;
                 item_min_limit = 0;
 
             }
