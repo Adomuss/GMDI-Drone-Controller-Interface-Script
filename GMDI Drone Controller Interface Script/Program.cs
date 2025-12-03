@@ -48,7 +48,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
         
-        string ver = "V0.320A";
+        string ver = "V0.5B";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -175,7 +175,6 @@ namespace IngameScript
         string line_highlight_9 = "[ ]";
         string line_highlight_10 = "[ ]";
         string line_highlight_11 = "[ ]";
-        string line_highlight_12 = "[ ]";
         string icon = "";
         string temp_id_name;
         string temp_id_name_2;
@@ -192,12 +191,47 @@ namespace IngameScript
         List<IMyRadioAntenna> at_tg;
         Vector3D alignGPSCoordinates;
         bool customDataAlignTargetValid;
-        string align_display = "";
+        MyIni _dataStore = new MyIni();
         
 
 
         public void Save()
         {
+        }
+
+        public void GetAntennaDataStore(string input)
+        {
+            if (!string.IsNullOrEmpty(input) && !string.IsNullOrWhiteSpace(input))
+            {
+                var str = "";
+                _dataStore.Clear();
+                if (_dataStore.TryParse(input))
+                {
+
+                    str = _dataStore.Get("Configuration", "drone group tag").ToString().Trim();
+                    if (!string.IsNullOrEmpty(str) && !string.IsNullOrWhiteSpace(str))
+                    {
+                        drone_tag = str;
+                        Echo($"Drone group tag found: {drone_tag}");
+                    }
+                    else
+                    {
+                        Echo("Drone group tag not found. Defaulting");
+                        drone_tag = "SWRM_D";
+                    }
+                    str = _dataStore.Get("Configuration", "ship grid tag").ToString().Trim();
+                    {
+                        secondary = str;
+                        Echo($"Ship grid tag found: {secondary}");
+                    }
+                }
+            }
+            else
+            {                
+                drone_tag = "SWRM_D";
+                secondary = "";
+                Echo("Storage not found. Defaulting");
+            }
         }
 
         public void Main(string argument, UpdateType updateSource)
@@ -208,10 +242,15 @@ namespace IngameScript
                 Setup(gts);
             }
 
+            if (at_tg.Count <= 0)
+            {
+                Echo($"Main antenna with tag {comms.Replace("[", "[[").Replace("]", "]]")} not found. Please setup and configure main GMDC controller.");
+                return;
+            }
 
             if (display_tag_main.Count <= 0 || display_tag_main[0] == null)
             {
-                Echo($"Main Displays with tag '{display_main_tag}' not found");
+                Echo($"Main Displays with tag '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
                 setup_complete = false;
                 return;
             }
@@ -226,16 +265,17 @@ namespace IngameScript
             }
             if (surface == null)
             {
-                Echo($"Panel:'{scnpanel}' on '{display_main_tag}' not found");
+                Echo($"Panel:'{scnpanel}' on '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
                 setup_complete = false;
                 return;
             }
             if (program_blocks_tag.Count <= 0 || program_blocks_tag[0] == null)
             {
-                Echo($"Drone controller with with tag '{drone_controller_tag}' not found");
+                Echo($"Drone controller with with tag '{drone_controller_tag.Replace("[","[[").Replace("]","]]")}' not found");
                 setup_complete = false;
                 return;
             }
+
             if (!setup_complete)
             {
                 Echo($"Setup not complete");
@@ -397,7 +437,7 @@ namespace IngameScript
                             {
                                 temp_menu++;
                             }
-                            if (item_number == 12)
+                            if (item_number == 11)
                             {
                                 temp_confirmval_1++;
                             }
@@ -447,13 +487,9 @@ namespace IngameScript
                             }
                             if (item_number == 10)
                             {
-                                temp_align_data_keep++;
-                            }
-                            if (item_number == 11)
-                            {
                                 temp_menu++;
                             }
-                            if (item_number == 12)
+                            if (item_number == 11)
                             {
                                 temp_confirmval_2++;
                             }
@@ -507,13 +543,9 @@ namespace IngameScript
                             }
                             if (item_number == 10)
                             {
-                                temp_align_data_keep++;
-                            }
-                            if (item_number == 11)
-                            {
                                 temp_menu++;
                             }
-                            if (item_number == 12)
+                            if (item_number == 11)
                             {
                                 temp_confirmval_2++;
                             }
@@ -567,13 +599,9 @@ namespace IngameScript
                             }
                             if (item_number == 10)
                             {
-                                temp_align_data_keep++;
-                            }
-                            if (item_number == 11)
-                            {
                                 temp_menu++;
                             }
-                            if (item_number == 12)
+                            if (item_number == 11)
                             {
                                 temp_confirmval_2++;
                             }
@@ -615,7 +643,7 @@ namespace IngameScript
                             {
                                 temp_menu--;
                             }
-                            if (item_number == 12)
+                            if (item_number == 11)
                             {
                                 temp_confirmval_1--;
                             }
@@ -665,13 +693,9 @@ namespace IngameScript
                             }
                             if (item_number == 10)
                             {
-                                temp_align_data_keep--;
-                            }
-                            if (item_number == 11)
-                            {
                                 temp_menu--;
                             }
-                            if (item_number == 12)
+                            if (item_number == 11)
                             {
                                 temp_confirmval_2--;
                             }
@@ -725,13 +749,9 @@ namespace IngameScript
                             }
                             if (item_number == 10)
                             {
-                                temp_align_data_keep--;
-                            }
-                            if (item_number == 11)
-                            {
                                 temp_menu--;
                             }
-                            if (item_number == 12)
+                            if (item_number == 11)
                             {
                                 temp_confirmval_2--;
                             }
@@ -785,13 +805,9 @@ namespace IngameScript
                             }
                             if (item_number == 10)
                             {
-                                temp_align_data_keep--;
-                            }
-                            if (item_number == 11)
-                            {
                                 temp_menu--;
                             }
-                            if (item_number == 12)
+                            if (item_number == 11)
                             {
                                 temp_confirmval_2--;
                             }
@@ -824,7 +840,7 @@ namespace IngameScript
                     {
                         iteration_view = "1";
                     }
-                    if (item_number == 7 || item_number == 8 || item_number == 9 || item_number == 10 || item_number == 11 || item_number == 12)
+                    if (item_number == 7 || item_number == 8 || item_number == 9 || item_number == 10 || item_number == 11)
                     {
                         iteration_view = "Yes/No";
                     }
@@ -858,10 +874,6 @@ namespace IngameScript
                     {
                         iteration_view = "Yes/No";
                     }
-                    if (item_number == 12)
-                    {
-                        iteration_view = "Yes/No";
-                    }
                 }
                 
                 if (iteration_val == 1)
@@ -890,10 +902,6 @@ namespace IngameScript
                     {
                         iteration_view = "Yes/No";
                     }
-                    if (item_number == 12)
-                    {
-                        iteration_view = "Yes/No";
-                    }
                 }
                 
                 if (iteration_val == 2)
@@ -919,10 +927,6 @@ namespace IngameScript
                         iteration_view = "Yes/No";
                     }
                     if (item_number == 11)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                    if (item_number == 12)
                     {
                         iteration_view = "Yes/No";
                     }
@@ -1094,23 +1098,6 @@ namespace IngameScript
             {
                 menu_display = "Yes";
             }
-            //temp align management
-            if (temp_align_data_keep < 0)
-            {
-                temp_align_data_keep = 1;
-            }
-            if (temp_align_data_keep > 1)
-            {
-                temp_align_data_keep = 0;
-            }
-            if (temp_align_data_keep == 0)
-            {
-                align_display = "No";
-            }
-            if (temp_align_data_keep == 1)
-            {
-                align_display = "Yes";
-            }
 
             //confirm management
             if (temp_confirmval_1 < 0)
@@ -1195,13 +1182,13 @@ namespace IngameScript
             {
                 if (menu_level == 1)
                 {
-                    if (item_number == 12 && !confirm_sel_1)
+                    if (item_number == 11 && !confirm_sel_1)
                     {
                         item_number = 0;
                         confirm_command = false;
                         argument = "";
                     }
-                    if (item_number == 12 && confirm_sel_1)
+                    if (item_number == 11 && confirm_sel_1)
                     {
                         if (temp_cancel == 1)
                         {
@@ -1244,13 +1231,13 @@ namespace IngameScript
                 //if menu is job configuration
                 if (menu_level == 2)
                 {
-                    if (item_number == 12 && !confirm_sel_2)
+                    if (item_number == 11 && !confirm_sel_2)
                     {
                         incr_item();
                         confirm_send = false;
                         argument = "";
                     }
-                    if (item_number == 12 && confirm_sel_2)
+                    if (item_number == 11 && confirm_sel_2)
                     {
                         if (temp_menu == 0)
                         {
@@ -1371,7 +1358,7 @@ namespace IngameScript
                 {
                     if (item_number == 8)
                     {
-                        item_number = 12;
+                        item_number = 11;
                         argument = "";
                     }
                 }
@@ -1380,7 +1367,7 @@ namespace IngameScript
             {
                 if (menu_level == 2)
                 {
-                    if (item_number >= 0 && item_number <= 12)
+                    if (item_number >= 0 && item_number <= 11)
                     {
                         incr_item();
                         argument = "";
@@ -1451,9 +1438,8 @@ namespace IngameScript
             item_line_7.Add("");
             item_line_8.Add("");
             item_line_9.Add("");
-            item_line_10.Add("");
+            item_line_10.Add("");            
             item_line_11.Add("");
-            item_line_12.Add("");
 
             //menu text - level 1
             item_line_0.Add("Command:");
@@ -1466,9 +1452,8 @@ namespace IngameScript
             item_line_7.Add("Cancel:");
             item_line_8.Add("Main Menu:");
             item_line_9.Add("---");
-            item_line_10.Add("---");
-            item_line_11.Add("---:");
-            item_line_12.Add("Confirm:");
+            item_line_10.Add("---:");
+            item_line_11.Add("Confirm:");
 
             //menu text - level 2
             item_line_0.Add("Number Grid X positions:");
@@ -1480,10 +1465,9 @@ namespace IngameScript
             item_line_6.Add("Limit drones in-flight:");
             item_line_7.Add("In-Flight Hard Limit:");
             item_line_8.Add("In-Flight Factor:");
-            item_line_9.Add("Core out:");
-            item_line_10.Add("Align data:");
-            item_line_11.Add("Main Menu:");
-            item_line_12.Add("Confirm:");
+            item_line_9.Add("Core out:");           
+            item_line_10.Add("Main Menu:");
+            item_line_11.Add("Confirm:");
             menu_level = 0;
             item_number = 0;
             Me.CustomData = "";
@@ -1495,8 +1479,10 @@ namespace IngameScript
                 if (at_all[i].CustomName.Contains(comms))
                 {
                     string checker = at_all[i].CustomData;
-                    drone_custom_data_check(checker, i);
-                    if (drone_tag == "" || drone_tag == null)
+                    //drone_custom_data_check(checker, i);
+                    GetAntennaDataStore(checker);
+
+                    if (string.IsNullOrEmpty(drone_tag) || string.IsNullOrWhiteSpace(drone_tag))
                     {
                         Echo($"Invalid name for drone_tag {drone_tag}. please add vailid drone tag (drone group name) to antenna custom data e.g. 'SWRM_D:Atlas:', '<drone_tag>:<ship_name>:");
                         return;
@@ -1533,6 +1519,7 @@ namespace IngameScript
 
         void GetCustomData()
         {
+
             // get custom data from programmable block
             String[] gpsCommand = controller_actual.CustomData.Split(':');
 
@@ -2002,11 +1989,13 @@ namespace IngameScript
                 }
                 if (targetAlignX && targetAlignY && targetAlignZ)
                 {
+                    temp_align_data_keep = 1;
                     customDataAlignTargetValid = true;
                 }
                 else
                 {
-                    customDataAlignTargetValid = false;
+                    temp_align_data_keep = 0;
+                    customDataAlignTargetValid = false;                    
                 }
                 if (gpsCommand.Length > 22)
                 {
@@ -2123,15 +2112,6 @@ namespace IngameScript
             {
                 line_highlight_11 = "[ ]";
             }
-            if (linevalin == 12)
-            {
-                line_highlight_12 = "[O]";
-            }
-            else
-            {
-                line_highlight_12 = "[ ]";
-            }
-
         }
 
         public void screen_display()
@@ -2200,7 +2180,7 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_9} ..  {item_line_9[menu_level]}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_12} 12. {item_line_12[menu_level]} {displayconfirm_1}");
+                display_view.Append($"{line_highlight_11} 11. {item_line_11[menu_level]} {displayconfirm_1}");
                 if (confirm_command)
                 {
                     display_view.Append('\n');
@@ -2235,11 +2215,9 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_9} 10. {item_line_9[menu_level]} {core_display}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_10} 11. {item_line_10[menu_level]} {align_display}");
+                display_view.Append($"{line_highlight_10} 11. {item_line_10[menu_level]} {menu_display}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_11} 12. {item_line_11[menu_level]} {menu_display}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_12} 13. {item_line_12[menu_level]} {displayconfirm_2}");
+                display_view.Append($"{line_highlight_11} 12. {item_line_11[menu_level]} {displayconfirm_2}");
                 if (confirm_send)
                 {
                     display_view.Append('\n');
@@ -2289,7 +2267,7 @@ namespace IngameScript
             }
             if (menu_level == 2)
             {
-                item_max_limit = 12;
+                item_max_limit = 11;
                 item_min_limit = 0;
             }
             item_number++;
@@ -2308,12 +2286,12 @@ namespace IngameScript
             }
             if (menu_level == 1)
             {
-                item_max_limit = 12;
+                item_max_limit = 11;
                 item_min_limit = 0;
             }
             if (menu_level == 2)
             {
-                item_max_limit = 12;
+                item_max_limit = 11;
                 item_min_limit = 0;
 
             }
