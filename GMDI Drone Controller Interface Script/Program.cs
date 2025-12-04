@@ -48,7 +48,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
         
-        string ver = "V0.5B";
+        string ver = "V0.502B";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -232,7 +232,10 @@ namespace IngameScript
                 secondary = "";
                 Echo("Storage not found. Defaulting");
             }
+            _dataStore.Clear();
+
         }
+        
 
         public void Main(string argument, UpdateType updateSource)
         {
@@ -2119,7 +2122,7 @@ namespace IngameScript
             display_view.Clear();
             if (menu_level == 0)
             {
-                display_view.Append($"GMDI - {ver}");
+                display_view.Append($"GMDI {secondary_tag} - {ver}");
                 display_view.Append('\n');
                 display_view.Append("------------");
                 display_view.Append('\n');
@@ -2129,7 +2132,7 @@ namespace IngameScript
             }
             if (menu_level == 1)
             {
-                display_view.Append($"GMDI - {ver}");
+                display_view.Append($"GMDI {secondary_tag}- {ver}");
                 display_view.Append('\n');
                 display_view.Append("------------");
                 display_view.Append('\n');
@@ -2139,7 +2142,7 @@ namespace IngameScript
             }
             if (menu_level == 2)
             {
-                display_view.Append($"GMDI - {ver}");
+                display_view.Append($"GMDI {secondary_tag}- {ver}");
                 display_view.Append('\n');
                 display_view.Append("------------");
                 display_view.Append('\n');
