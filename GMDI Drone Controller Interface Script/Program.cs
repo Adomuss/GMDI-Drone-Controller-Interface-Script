@@ -49,7 +49,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
         
-        string ver = "V0.504B";
+        string ver = "V0.505B";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -1510,7 +1510,7 @@ namespace IngameScript
             at_all.Clear();
             display_all = new List<IMyTerminalBlock>();
             display_tag_main = new List<IMyTerminalBlock>();
-            gts.GetBlocksOfType<IMyTerminalBlock>(display_all);
+            gts.GetBlocksOfType<IMyTerminalBlock>(display_all, b => b.CubeGrid == Me.CubeGrid);
             for (int i = 0; i < display_all.Count; i++)
             {
                 if (display_all[i].CustomName.Contains(display_main_tag))
