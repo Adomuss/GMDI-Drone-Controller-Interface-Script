@@ -49,7 +49,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
         
-        string ver = "V0.505B";
+        string ver = "V0.506B";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -197,7 +197,7 @@ namespace IngameScript
         string jobdata = "";        
         string jobinfo = "Jobinfo";
         string gmdccategory = "GMDCJobData";        
-
+        StringBuilder sbtexttemp = new StringBuilder();
 
 
 
@@ -218,17 +218,17 @@ namespace IngameScript
                     if (!string.IsNullOrEmpty(str) && !string.IsNullOrWhiteSpace(str))
                     {
                         drone_tag = str;
-                        Echo($"Drone group tag found: {drone_tag}");
+                        sbtexttemp.AppendLine($"Drone group tag found: {drone_tag}");
                     }
                     else
                     {
-                        Echo("Drone group tag not found. Defaulting");
+                        sbtexttemp.AppendLine("Drone group tag not found. Defaulting");
                         drone_tag = "SWRM_D";
                     }
                     str = _dataStore.Get("Configuration", "ship grid tag").ToString().Trim();
                     {
                         secondary = str;
-                        Echo($"Ship grid tag found: {secondary}");
+                        sbtexttemp.AppendLine($"Ship grid tag found: {secondary}");
                     }
                 }
             }
@@ -236,7 +236,7 @@ namespace IngameScript
             {                
                 drone_tag = "SWRM_D";
                 secondary = "";
-                Echo("Storage not found. Defaulting");
+                sbtexttemp.AppendLine("Storage not found. Defaulting");
             }
             _dataStore.Clear();
 
@@ -253,13 +253,13 @@ namespace IngameScript
 
             if (at_tg.Count <= 0)
             {
-                Echo($"Main antenna with tag {comms.Replace("[", "[[").Replace("]", "]]")} not found. Please setup and configure main GMDC controller.");
+                sbtexttemp.AppendLine($"Main antenna with tag {comms.Replace("[", "[[").Replace("]", "]]")} not found. Please setup and configure main GMDC controller.");
                 return;
             }
 
             if (display_tag_main.Count <= 0 || display_tag_main[0] == null)
             {
-                Echo($"Main Displays with tag '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
+                sbtexttemp.AppendLine($"Main Displays with tag '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
                 setup_complete = false;
                 return;
             }
@@ -274,33 +274,33 @@ namespace IngameScript
             }
             if (surface == null)
             {
-                Echo($"Panel:'{scnpanel}' on '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
+                sbtexttemp.AppendLine($"Panel:'{scnpanel}' on '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
                 setup_complete = false;
                 return;
             }
             if (program_blocks_tag.Count <= 0 || program_blocks_tag[0] == null)
             {
-                Echo($"Drone controller with with tag '{drone_controller_tag.Replace("[","[[").Replace("]","]]")}' not found");
+                sbtexttemp.AppendLine($"Drone controller with with tag '{drone_controller_tag.Replace("[","[[").Replace("]","]]")}' not found");
                 setup_complete = false;
                 return;
             }
 
             if (!setup_complete)
             {
-                Echo($"Setup not complete");
+                sbtexttemp.AppendLine($"Setup not complete");
                 return;
             }
             controller_actual = program_blocks_tag[0];
-            Echo($"GMDI {ver} Running {icon}");
-            Echo("");
-            Echo("Use the below run arguments to navigate:");
-            Echo("----------------------------------------");
-            Echo("");
-            Echo($"Confirm = {confirmval}");
-            Echo($"Change increment = {incrsel}");
-            Echo($"Increase value = {increase}");
-            Echo($"Decrease value = {decrease}");
-            Echo($"Main menu = {menureturn}");
+            sbtexttemp.AppendLine($"GMDI {ver} Running {icon}");
+            sbtexttemp.AppendLine("");
+            sbtexttemp.AppendLine("Use the below run arguments to navigate:");
+            sbtexttemp.AppendLine("----------------------------------------");
+            sbtexttemp.AppendLine("");
+            sbtexttemp.AppendLine($"Confirm = {confirmval}");
+            sbtexttemp.AppendLine($"Change increment = {incrsel}");
+            sbtexttemp.AppendLine($"Increase value = {increase}");
+            sbtexttemp.AppendLine($"Decrease value = {decrease}");
+            sbtexttemp.AppendLine($"Main menu = {menureturn}");
             //logic start
             
             GetCustomData(controller_actual.CustomData,controller_actual);
@@ -325,7 +325,7 @@ namespace IngameScript
             {
                 setup_complete = false;
                 argument = "";
-                Echo("Running setup...");
+                sbtexttemp.AppendLine("Running setup...");
             }
             state_shifter();
             //menu stuff
@@ -1403,6 +1403,8 @@ namespace IngameScript
                 confirm_command = false;
             }
             
+            Echo(sbtexttemp.ToString());
+            sbtexttemp.Clear();
         }
 
         void StoreJobData(IMyTerminalBlock block, string input)
@@ -1501,7 +1503,7 @@ namespace IngameScript
 
                     if (string.IsNullOrEmpty(drone_tag) || string.IsNullOrWhiteSpace(drone_tag))
                     {
-                        Echo($"Invalid name for drone_tag {drone_tag}. please add vailid drone tag (drone group name) to antenna custom data e.g. 'SWRM_D:Atlas:', '<drone_tag>:<ship_name>:");
+                        sbtexttemp.AppendLine($"Invalid name for drone_tag {drone_tag}. please add vailid drone tag (drone group name) to antenna custom data e.g. 'SWRM_D:Atlas:', '<drone_tag>:<ship_name>:");
                         return;
                     }
                     at_tg.Add(at_all[i]);
@@ -1531,7 +1533,7 @@ namespace IngameScript
             }
             program_blocks_all.Clear();
             setup_complete = true;
-            Echo("Setup complete!");
+            sbtexttemp.AppendLine("Setup complete!");
         }
 
         void FetchJobData(string input)
@@ -1683,7 +1685,7 @@ namespace IngameScript
                 customData20 = "";
                 customData21 = "";
                 customData22 = "";
-                Echo("Please use prospector to assign a mining location");
+                sbtexttemp.AppendLine("Please use prospector to assign a mining location");
                 data_valid = false;
                 return;
             }
@@ -2058,7 +2060,7 @@ namespace IngameScript
             }
             if (gpsCommand.Length > 16)
             {
-                Echo($"gpsCommandLen:{gpsCommand.Length}");
+                sbtexttemp.AppendLine($"gpsCommandLen:{gpsCommand.Length}");
                 bool targetAlignX;
                 bool targetAlignY;
                 bool targetAlignZ;
@@ -2529,9 +2531,9 @@ namespace IngameScript
         }
         public void drone_custom_data_check(string custominfo, int index)
         {
-            Echo("Checking for drone config information..");
+            sbtexttemp.AppendLine("Checking for drone config information..");
             String[] temp_id = custominfo.Split(':');
-            Echo($"{temp_id.Length}");
+            sbtexttemp.AppendLine($"{temp_id.Length}");
 
             if (temp_id.Length > 0)
             {
@@ -2542,14 +2544,14 @@ namespace IngameScript
                     if (temp_id_name == "" || temp_id_name == null)
                     {
                         temp_id_name = drone_tag;
-                        Echo($"Resorting to default scout tag {drone_tag}");
+                        sbtexttemp.AppendLine($"Resorting to default scout tag {drone_tag}");
                     }
                 }
             }
             else
             {
                 temp_id_name = drone_tag;
-                Echo($"Resorting to default ID#.{drone_tag}");
+                sbtexttemp.AppendLine($"Resorting to default ID#.{drone_tag}");
             }
             if (temp_id.Length > 1)
             {
@@ -2560,24 +2562,24 @@ namespace IngameScript
                     if (temp_id_name_2 == null)
                     {
                         temp_id_name_2 = secondary;
-                        Echo($"Resorting to default scout tag {secondary}");
+                        sbtexttemp.AppendLine($"Resorting to default scout tag {secondary}");
                     }
                 }
             }
             else
             {
                 temp_id_name_2 = secondary;
-                Echo($"Resorting to default ID#.{drone_tag}");
+                sbtexttemp.AppendLine($"Resorting to default ID#.{drone_tag}");
             }
             if (temp_id.Length == 0)
             {
                 temp_id_name = drone_tag;
                 temp_id_name_2 = secondary;
-                Echo($"Resorting to default config {temp_id_name} {temp_id_name_2}.");
+                sbtexttemp.AppendLine($"Resorting to default config {temp_id_name} {temp_id_name_2}.");
             }
             
             
-            Echo($"Drone info:{drone_tag}");
+            sbtexttemp.AppendLine($"Drone info:{drone_tag}");
             drone_controller_tag = "[" + drone_tag + " " + comms + "]";
             display_main_tag = "[" + drone_tag + " " + intfs + " " + postfix + "]";
             ant_tg = "[" + drone_tag + " " + comms + "]";
