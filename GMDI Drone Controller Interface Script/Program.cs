@@ -50,7 +50,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
 
-        string ver = "V0.5067";
+        string ver = "V0.507";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -98,6 +98,7 @@ namespace IngameScript
         double gridsize;
         int numPointsY;
         int numPointsX;
+        int jobnumber;
         Vector3D main_gps_coords;
         double drillshaft_length;
         int skipbores;
@@ -144,6 +145,7 @@ namespace IngameScript
         int new_numPointsX;
         int new_flight_factor;
         int new_hard_drone_limit;
+        int new_job_number;
         bool new_limit_flight_drones;
         bool new_limit_coreout;
         int read_limit_flight_drones = 0;
@@ -286,6 +288,16 @@ namespace IngameScript
 
         public void process_display_totals()
         {
+            new_job_number = jobnumber + temp_jobnumber;
+            if(new_job_number < 0)
+            {
+                new_job_number = 4;
+            }
+            if (new_job_number < 4)
+            {
+                new_job_number = 0;
+            }
+
             //new totals for disp
             new_numPointsX = numPointsX + temp_numPointsX;
             if (new_numPointsX < 1)
@@ -2717,17 +2729,17 @@ namespace IngameScript
             }
             if (menu_level == 3)
             {
-                display_view.Append($"{line_highlight_0} 1. {item_line_0[menu_level]}");
+                display_view.Append($"{line_highlight_0} 1. {item_line_0[menu_level]}: {scroll_job_item}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_1} 2. {item_line_1[menu_level]}");
+                display_view.Append($"{line_highlight_1} 2. {item_line_1[menu_level]}: {new_job_number}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_2} 2. {item_line_2[menu_level]}");
+                display_view.Append($"{line_highlight_2} 3. {item_line_2[menu_level]}");
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_9} ..  {item_line_9[menu_level]}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_10} ..  {item_line_10[menu_level]}");
+                display_view.Append($"{line_highlight_10} 11. {item_line_10[menu_level]}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_11} ..  {item_line_11[menu_level]}");
+                display_view.Append($"{line_highlight_11} 12. {item_line_11[menu_level]}");
                 if (confirm_command)
                 {
                     display_view.Append('\n');
