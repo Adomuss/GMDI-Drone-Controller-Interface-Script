@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Drawing;
 using System.Drawing.Printing;
+using System.Dynamic;
 using System.Linq;
 using System.Text;
 using VRage;
@@ -48,8 +49,8 @@ namespace IngameScript
         string command = "command";
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
-        
-        string ver = "V0.506B";
+
+        string ver = "V0.5067";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -106,6 +107,7 @@ namespace IngameScript
         string core_display;
         string cancel_display;
         string menu_display;
+        string job_display;
         double temp_drillshaft_length = 0.0;
         double temp_ignore_depth = 0.0;
         double temp_gridsize = 0.0;
@@ -119,13 +121,17 @@ namespace IngameScript
         int temp_cancel = 0;
         int temp_align_data_keep = 0;
         int temp_menu = 0;
+        int temp_loadsave = 0;
+        int temp_jobnumber = 0;
         bool confirm_send = false;
         bool confirm_command = false;
+        bool confirm_sel_3 = false;
         bool confirm_sel_2 = false;
         bool confirm_sel_1 = false;
         string disp_command = "";
         string displayconfirm_1;
         string displayconfirm_2;
+        string displayconfirm_3;
         int iteration_val = 0;
         bool has_iterated = false;
         bool has_increased = false;
@@ -146,6 +152,7 @@ namespace IngameScript
         int new_int_limit_coreout = 0;
         int temp_confirmval_1 = 0;
         int temp_confirmval_2 = 0;
+        int temp_confirmval_3 = 0;
         double surfaceDistance = 0.0;
         List<string> item_line_0;
         List<string> item_line_1;
@@ -161,6 +168,7 @@ namespace IngameScript
         List<string> item_line_11;
         List<string> item_line_12;
         List<string> scroll_command_item;
+        List<string> scroll_job_item;
         int scroll_item_val = 0;
         int scroll_item_val_min_limit = 0;
         int scroll_item_val_max_limit = 7;
@@ -194,11 +202,12 @@ namespace IngameScript
         bool customDataAlignTargetValid;
         MyIni _dataStore = new MyIni();
         MyIni _customDataStore = new MyIni();
-        string jobdata = "";        
+        string jobdata = "";
         string jobinfo = "Jobinfo";
-        string gmdccategory = "GMDCJobData";        
+        string gmdccategory = "GMDCJobData";
         StringBuilder sbtexttemp = new StringBuilder();
-
+        string customData_Old = "";
+        IMyTextSurface surface;
 
 
         public void Save()
@@ -218,79 +227,32 @@ namespace IngameScript
                     if (!string.IsNullOrEmpty(str) && !string.IsNullOrWhiteSpace(str))
                     {
                         drone_tag = str;
-                        sbtexttemp.AppendLine($"Drone group tag found: {drone_tag}");
+                        Echo($"Drone group tag found: {drone_tag}");
                     }
                     else
                     {
-                        sbtexttemp.AppendLine("Drone group tag not found. Defaulting");
+                        Echo("Drone group tag not found. Defaulting");
                         drone_tag = "SWRM_D";
                     }
                     str = _dataStore.Get("Configuration", "ship grid tag").ToString().Trim();
                     {
                         secondary = str;
-                        sbtexttemp.AppendLine($"Ship grid tag found: {secondary}");
+                        Echo($"Ship grid tag found: {secondary}");
                     }
                 }
             }
             else
-            {                
+            {
                 drone_tag = "SWRM_D";
                 secondary = "";
-                sbtexttemp.AppendLine("Storage not found. Defaulting");
+                Echo("Storage not found. Defaulting");
             }
             _dataStore.Clear();
 
         }
-        
 
-        public void Main(string argument, UpdateType updateSource)
+        public void displayinfo_local()
         {
-            IMyGridTerminalSystem gts = GridTerminalSystem as IMyGridTerminalSystem;
-            if (!setup_complete)
-            {
-                Setup(gts);
-            }
-
-            if (at_tg.Count <= 0)
-            {
-                sbtexttemp.AppendLine($"Main antenna with tag {comms.Replace("[", "[[").Replace("]", "]]")} not found. Please setup and configure main GMDC controller.");
-                return;
-            }
-
-            if (display_tag_main.Count <= 0 || display_tag_main[0] == null)
-            {
-                sbtexttemp.AppendLine($"Main Displays with tag '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
-                setup_complete = false;
-                return;
-            }
-            display_actual = display_tag_main[0];
-            IMyTextSurface surface = ((IMyTextSurfaceProvider)display_actual).GetSurface(scnpanel);
-            if (surface != null)
-            {
-                if (surface.ContentType != ContentType.TEXT_AND_IMAGE)
-                {
-                    surface.ContentType = ContentType.TEXT_AND_IMAGE;
-                }
-            }
-            if (surface == null)
-            {
-                sbtexttemp.AppendLine($"Panel:'{scnpanel}' on '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
-                setup_complete = false;
-                return;
-            }
-            if (program_blocks_tag.Count <= 0 || program_blocks_tag[0] == null)
-            {
-                sbtexttemp.AppendLine($"Drone controller with with tag '{drone_controller_tag.Replace("[","[[").Replace("]","]]")}' not found");
-                setup_complete = false;
-                return;
-            }
-
-            if (!setup_complete)
-            {
-                sbtexttemp.AppendLine($"Setup not complete");
-                return;
-            }
-            controller_actual = program_blocks_tag[0];
             sbtexttemp.AppendLine($"GMDI {ver} Running {icon}");
             sbtexttemp.AppendLine("");
             sbtexttemp.AppendLine("Use the below run arguments to navigate:");
@@ -301,10 +263,9 @@ namespace IngameScript
             sbtexttemp.AppendLine($"Increase value = {increase}");
             sbtexttemp.AppendLine($"Decrease value = {decrease}");
             sbtexttemp.AppendLine($"Main menu = {menureturn}");
-            //logic start
-            
-            GetCustomData(controller_actual.CustomData,controller_actual);
-            state_shifter();
+        }
+        public void process_job_status()
+        {
             if (limit_flight_drones)
             {
                 read_limit_flight_drones = 1;
@@ -321,629 +282,10 @@ namespace IngameScript
             {
                 read_limit_coreout = 0;
             }
-            if (argument == "setup" && setup_complete)
-            {
-                setup_complete = false;
-                argument = "";
-                sbtexttemp.AppendLine("Running setup...");
-            }
-            state_shifter();
-            //menu stuff
-            if (argument.Contains(jobconf))
-            {
-                menu_level = 2;
-                item_number = 0;
-                iteration_val = 0;
-                argument = "";
-            }
-            if (argument.Contains(command))
-            {
-                menu_level = 1;
-                item_number = 0;
-                iteration_val = 0;
-                argument = "";
-            }
-            if (argument.Contains(menureturn))
-            {
-                menu_level = 0;
-                item_number = 0;
-                scroll_item_val = 0;
-                iteration_val = 0;
-                argument = "";
-            }
-            if (argument.Contains(cancelcommand))
-            {
-                menu_level = 0;
-                item_number = 0;
-                iteration_val = 0;
-                scroll_item_val = 7;
-                Me.CustomData = "";
-                last_command = "";
-                argument = "";
-            }
+        }
 
-            if (argument.Contains(itemup)) //item index up
-            {
-                if (!item_up)
-                {
-                    incr_item();
-                    item_up = true;
-                    argument = "";
-                }
-            }
-            if (item_up)
-            {
-                item_up = false;
-            }
-
-            if (argument.Contains(itemdown)) //item index down
-            {
-                if (!item_down)
-                {
-                    decr_item();
-                    item_down = true;
-                    argument = "";
-                }
-            }
-            if (item_down)
-            {
-                item_down = false;
-            }
-            if (argument.Contains(incrsel))
-            {
-                if (menu_level == 0 && !has_iterated)
-                {
-                    iteration_val = 0;
-                    has_iterated = true;
-                }
-                if (menu_level == 1 && !has_iterated)
-                {
-                    iteration_val = 0;
-                    has_iterated = true;
-                }
-                if (menu_level == 2)
-                {
-                    if (!has_iterated && !has_iterated)
-                    {
-                        iteration_val++;
-                        has_iterated = true;
-                    }
-                    if (iteration_val > 2)
-                    {
-                        iteration_val = 0;
-                        has_iterated = true;
-                    }
-                }
-                argument = "";
-            }
-            if (has_iterated)
-            {
-                has_iterated = false;
-            }
-
-            if (argument.Contains(increase))
-            {
-                if (!has_increased)
-                {
-                    if (iteration_val == 0)
-                    {
-                        if (menu_level == 0)
-                        {
-                            incr_item();
-                            has_increased = true;
-                        }
-                        if (menu_level == 1 && !has_increased)
-                        {
-                            if (item_number == 0)
-                            {
-                                incr_scoll_command();
-                            }
-                            if (item_number == 7)
-                            {
-                                temp_cancel++;
-                            }
-                            if (item_number == 8)
-                            {
-                                temp_menu++;
-                            }
-                            if (item_number == 11)
-                            {
-                                temp_confirmval_1++;
-                            }
-                            has_increased = true;
-                        }
-                        if (menu_level == 2 && !has_increased)
-                        {
-                            if (item_number == 0)
-                            {
-                                temp_numPointsX++;
-                            }
-                            if (item_number == 1)
-                            {
-                                temp_numPointsY++;
-                            }
-                            if (item_number == 2)
-                            {
-                                temp_gridsize = temp_gridsize + 0.1;
-                            }
-                            if (item_number == 3)
-                            {
-                                temp_skipbores++;
-                            }
-                            if (item_number == 4)
-                            {
-                                temp_drillshaft_length = temp_drillshaft_length + 0.1;
-                            }
-                            if (item_number == 5)
-                            {
-                                temp_ignore_depth = temp_ignore_depth + 0.1;
-                            }
-                            if (item_number == 6)
-                            {
-                                temp_limit_flight_drones++;
-                            }
-                            if (item_number == 7)
-                            {
-                                temp_hard_drone_limit++;
-                            }
-                            if (item_number == 8)
-                            {
-                                temp_flight_factor++;
-                            }
-                            if (item_number == 9)
-                            {
-                                temp_limit_coreout++;
-                            }
-                            if (item_number == 10)
-                            {
-                                temp_menu++;
-                            }
-                            if (item_number == 11)
-                            {
-                                temp_confirmval_2++;
-                            }
-                            has_increased = true;
-                        }
-                    }
-
-                    if (iteration_val == 1)
-                    {
-                        if (menu_level == 2 && !has_increased)
-                        {
-                            if (item_number == 0)
-                            {
-                                temp_numPointsX = temp_numPointsX + 5;
-                            }
-                            if (item_number == 1)
-                            {
-                                temp_numPointsY = temp_numPointsY + 5;
-                            }
-                            if (item_number == 2)
-                            {
-                                temp_gridsize = temp_gridsize + 1.0;
-                            }
-                            if (item_number == 3)
-                            {
-                                temp_skipbores = temp_skipbores + 5;
-                            }
-                            if (item_number == 4)
-                            {
-                                temp_drillshaft_length = temp_drillshaft_length + 1.0;
-                            }
-                            if (item_number == 5)
-                            {
-                                temp_ignore_depth = temp_ignore_depth + 1.0;
-                            }
-                            if (item_number == 6)
-                            {
-                                temp_limit_flight_drones = temp_limit_flight_drones + 1;
-                            }
-                            if (item_number == 7)
-                            {
-                                temp_hard_drone_limit = temp_hard_drone_limit + 5;
-                            }
-                            if (item_number == 8)
-                            {
-                                temp_flight_factor = temp_flight_factor + 5;
-                            }
-                            if (item_number == 9)
-                            {
-                                temp_limit_coreout++;
-                            }
-                            if (item_number == 10)
-                            {
-                                temp_menu++;
-                            }
-                            if (item_number == 11)
-                            {
-                                temp_confirmval_2++;
-                            }
-                            has_increased = true;
-                        }
-                    }
-                  
-                    if (iteration_val == 2)
-                    {
-                        if (menu_level == 2 && !has_increased)
-                        {
-                            if (item_number == 0)
-                            {
-                                temp_numPointsX = temp_numPointsX + 10;
-                            }
-                            if (item_number == 1)
-                            {
-                                temp_numPointsY = temp_numPointsY + 10;
-                            }
-                            if (item_number == 2)
-                            {
-                                temp_gridsize = temp_gridsize + 5.0;
-                            }
-                            if (item_number == 3)
-                            {
-                                temp_skipbores = temp_skipbores + 10;
-                            }
-                            if (item_number == 4)
-                            {
-                                temp_drillshaft_length = temp_drillshaft_length + 10.0;
-                            }
-                            if (item_number == 5)
-                            {
-                                temp_ignore_depth = temp_ignore_depth + 10.0;
-                            }
-                            if (item_number == 6)
-                            {
-                                temp_limit_flight_drones++;
-                            }
-                            if (item_number == 7)
-                            {
-                                temp_hard_drone_limit = temp_hard_drone_limit + 10;
-                            }
-                            if (item_number == 8)
-                            {
-                                temp_flight_factor = temp_flight_factor + 10;
-                            }
-                            if (item_number == 9)
-                            {
-                                temp_limit_coreout++;
-                            }
-                            if (item_number == 10)
-                            {
-                                temp_menu++;
-                            }
-                            if (item_number == 11)
-                            {
-                                temp_confirmval_2++;
-                            }
-                            has_increased = true;
-                        }
-                    }
-
-                }
-                argument = "";
-            }
-            if (has_increased)
-            {
-                has_increased = false;
-            }
-            
-            if (argument.Contains(decrease))
-            {
-
-                if (!has_decreased)
-                {
-                    if (iteration_val == 0)
-                    {
-                        if (menu_level == 0)
-                        {
-                            decr_item();
-                            has_decreased = true;
-                        }
-                        if (menu_level == 1 && !has_decreased)
-                        {
-                            if (item_number == 0)
-                            {
-                                decr_scoll_command();
-                            }
-                            if (item_number == 7)
-                            {
-                                temp_cancel--;
-                            }
-                            if (item_number == 8)
-                            {
-                                temp_menu--;
-                            }
-                            if (item_number == 11)
-                            {
-                                temp_confirmval_1--;
-                            }
-                            has_decreased = true;
-                        }
-                        if (menu_level == 2 && !has_decreased)
-                        {
-                            if (item_number == 0)
-                            {
-                                temp_numPointsX--;
-                            }
-                            if (item_number == 1)
-                            {
-                                temp_numPointsY--;
-                            }
-                            if (item_number == 2)
-                            {
-                                temp_gridsize = temp_gridsize - 0.1;
-                            }
-                            if (item_number == 3)
-                            {
-                                temp_skipbores--;
-                            }
-                            if (item_number == 4)
-                            {
-                                temp_drillshaft_length = temp_drillshaft_length - 0.1;
-                            }
-                            if (item_number == 5)
-                            {
-                                temp_ignore_depth = temp_ignore_depth - 0.1;
-                            }
-                            if (item_number == 6)
-                            {
-                                temp_limit_flight_drones--;
-                            }
-                            if (item_number == 7)
-                            {
-                                temp_hard_drone_limit--;
-                            }
-                            if (item_number == 8)
-                            {
-                                temp_flight_factor--;
-                            }
-                            if (item_number == 9)
-                            {
-                                temp_limit_coreout--;
-                            }
-                            if (item_number == 10)
-                            {
-                                temp_menu--;
-                            }
-                            if (item_number == 11)
-                            {
-                                temp_confirmval_2--;
-                            }
-                            has_decreased = true;
-                        }
-                    }
-                    
-                    if (iteration_val == 1)
-                    {
-                        if (menu_level == 2 && !has_decreased)
-                        {
-                            if (item_number == 0)
-                            {
-                                temp_numPointsX = temp_numPointsX - 5;
-                            }
-                            if (item_number == 1)
-                            {
-                                temp_numPointsY = temp_numPointsY - 5;
-                            }
-                            if (item_number == 2)
-                            {
-                                temp_gridsize = temp_gridsize - 1.0;
-                            }
-                            if (item_number == 3)
-                            {
-                                temp_skipbores = temp_skipbores - 5;
-                            }
-                            if (item_number == 4)
-                            {
-                                temp_drillshaft_length = temp_drillshaft_length - 1.0;
-                            }
-                            if (item_number == 5)
-                            {
-                                temp_ignore_depth = temp_ignore_depth - 1.0;
-                            }
-                            if (item_number == 6)
-                            {
-                                temp_limit_flight_drones--;
-                            }
-                            if (item_number == 7)
-                            {
-                                temp_hard_drone_limit = temp_hard_drone_limit - 5;
-                            }
-                            if (item_number == 8)
-                            {
-                                temp_flight_factor = temp_flight_factor - 5;
-                            }
-                            if (item_number == 9)
-                            {
-                                temp_limit_coreout--;
-                            }
-                            if (item_number == 10)
-                            {
-                                temp_menu--;
-                            }
-                            if (item_number == 11)
-                            {
-                                temp_confirmval_2--;
-                            }
-                            has_decreased = true;
-                        }
-                    }
-                    
-                    if (iteration_val == 2)
-                    {
-                        if (menu_level == 2 && !has_decreased)
-                        {
-                            if (item_number == 0)
-                            {
-                                temp_numPointsX = temp_numPointsX - 10;
-                            }
-                            if (item_number == 1)
-                            {
-                                temp_numPointsY = temp_numPointsY - 10;
-                            }
-                            if (item_number == 2)
-                            {
-                                temp_gridsize = temp_gridsize - 5.0;
-                            }
-                            if (item_number == 3)
-                            {
-                                temp_skipbores = temp_skipbores - 10;
-                            }
-                            if (item_number == 4)
-                            {
-                                temp_drillshaft_length = temp_drillshaft_length - 10.0;
-                            }
-                            if (item_number == 5)
-                            {
-                                temp_ignore_depth = temp_ignore_depth - 10.0;
-                            }
-                            if (item_number == 6)
-                            {
-                                temp_limit_flight_drones--;
-                            }
-                            if (item_number == 7)
-                            {
-                                temp_hard_drone_limit = temp_hard_drone_limit - 10;
-                            }
-                            if (item_number == 8)
-                            {
-                                temp_flight_factor = temp_flight_factor - 10;
-                            }
-                            if (item_number == 9)
-                            {
-                                temp_limit_coreout--;
-                            }
-                            if (item_number == 10)
-                            {
-                                temp_menu--;
-                            }
-                            if (item_number == 11)
-                            {
-                                temp_confirmval_2--;
-                            }
-                            has_decreased = true;
-                        }
-                    }
-                }
-                argument = "";
-            }
-            if (has_decreased)
-            {
-                has_decreased = false;
-            }
-            
-            if (menu_level == 0)
-            {
-                if (iteration_val == 0)
-                {
-                    if (item_number == 0)
-                    {
-                        iteration_view = "";
-                    }
-                }
-            }
-            if (menu_level == 1)
-            {
-                if (iteration_val == 0)
-                {
-                    if (item_number == 0)
-                    {
-                        iteration_view = "1";
-                    }
-                    if (item_number == 7 || item_number == 8 || item_number == 9 || item_number == 10 || item_number == 11)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                }
-            }
-            if (menu_level == 2)
-            {
-                if (iteration_val == 0)
-                {
-                    if (item_number == 0 || item_number == 1 || item_number == 3 || item_number == 7 || item_number == 8)
-                    {
-                        iteration_view = "1";
-                    }
-                    if (item_number == 2 || item_number == 4 || item_number == 5)
-                    {
-                        iteration_view = "0.1";
-                    }
-                    if (item_number == 6)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                    if (item_number == 9)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                    if (item_number == 10)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                    if (item_number == 11)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                }
-                
-                if (iteration_val == 1)
-                {
-                    if (item_number == 0 || item_number == 1 || item_number == 3 || item_number == 7 || item_number == 8)
-                    {
-                        iteration_view = "5";
-                    }
-                    if (item_number == 2 || item_number == 4 || item_number == 5)
-                    {
-                        iteration_view = "1.0";
-                    }
-                    if (item_number == 6)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                    if (item_number == 9)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                    if (item_number == 10)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                    if (item_number == 11)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                }
-                
-                if (iteration_val == 2)
-                {
-                    if (item_number == 0 || item_number == 1 || item_number == 3 || item_number == 7 || item_number == 8)
-                    {
-                        iteration_view = "10";
-                    }
-                    if (item_number == 2 || item_number == 4 || item_number == 5)
-                    {
-                        iteration_view = "10.0";
-                    }
-                    if (item_number == 6)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                    if (item_number == 9)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                    if (item_number == 10)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                    if (item_number == 11)
-                    {
-                        iteration_view = "Yes/No";
-                    }
-                }
-            }
-
-
-            
+        public void process_display_totals()
+        {
             //new totals for disp
             new_numPointsX = numPointsX + temp_numPointsX;
             if (new_numPointsX < 1)
@@ -1090,6 +432,32 @@ namespace IngameScript
             {
                 cancel_display = "Yes";
             }
+            //temp job management
+            if (temp_jobnumber < 0)
+            {
+                temp_jobnumber = 5;
+            }
+            if (temp_jobnumber > 5)
+            {
+                temp_jobnumber = 0;
+            }
+            //load save management
+            if (temp_loadsave < 0)
+            {
+                temp_loadsave = 1;
+            }
+            if (temp_loadsave > 1)
+            {
+                temp_loadsave = 0;
+            }
+            if (temp_loadsave == 0)
+            {
+                job_display = "Load";
+            }
+            if (temp_loadsave == 1)
+            {
+                job_display = "Save";
+            }
             //menu management
             if (temp_menu < 0)
             {
@@ -1143,6 +511,23 @@ namespace IngameScript
                 confirm_sel_2 = false;
             }
 
+            if (temp_confirmval_3 < 0)
+            {
+                temp_confirmval_3 = 1;
+            }
+            if (temp_confirmval_3 > 1)
+            {
+                temp_confirmval_3 = 0;
+            }
+            if (temp_confirmval_3 == 1)
+            {
+                confirm_sel_3 = true;
+            }
+            if (temp_confirmval_3 == 0)
+            {
+                confirm_sel_3 = false;
+            }
+
 
             //confirm display
             if (confirm_sel_1)
@@ -1161,8 +546,20 @@ namespace IngameScript
             {
                 displayconfirm_2 = "No";
             }
-            
-            // confirm management
+            if (confirm_sel_3)
+            {
+                displayconfirm_3 = "Yes";
+            }
+            if (!confirm_sel_3)
+            {
+                displayconfirm_3 = "No";
+            }
+        }
+        public void process_confirm_commands(string argument)
+        {
+
+            #region Main Menu Navigation
+            //Main Menu Navigation
             if (argument.Contains("confirm"))
             {
                 if (menu_level == 0)
@@ -1189,6 +586,23 @@ namespace IngameScript
             }
             if (argument.Contains("confirm"))
             {
+                if (menu_level == 0)
+                {
+                    if (item_number == 2)
+                    {
+                        menu_level = 3;
+                        item_number = 0;
+                        argument = "";
+                    }
+                }
+            }
+            #endregion
+
+
+            #region Menu Confirmation Actions
+            //Menu 1 Confirmation Selection
+            if (argument.Contains("confirm"))
+            {
                 if (menu_level == 1)
                 {
                     if (item_number == 11 && !confirm_sel_1)
@@ -1201,7 +615,7 @@ namespace IngameScript
                     {
                         if (temp_cancel == 1)
                         {
-                            scroll_item_val = 7;                            
+                            scroll_item_val = 7;
                             temp_menu = 0;
                         }
                         if (temp_menu == 0)
@@ -1235,6 +649,7 @@ namespace IngameScript
                     }
                 }
             }
+            //Menu 2 Confirmation Selection
             if (argument.Contains("confirm"))
             {
                 //if menu is job configuration
@@ -1286,7 +701,7 @@ namespace IngameScript
                                 mcd_new.Append(":");
                                 mcd_new.Append(new_limit_coreout);
                                 mcd_new.Append(":");
-                                if (customDataAlignTargetValid && temp_align_data_keep==1)
+                                if (customDataAlignTargetValid && temp_align_data_keep == 1)
                                 {
                                     mcd_new.Append($"GPS:DDT:{alignGPSCoordinates.X}:{alignGPSCoordinates.Y}:{alignGPSCoordinates.Z}:#FF75C9F1:{surfaceDistance}:");
                                 }
@@ -1311,7 +726,7 @@ namespace IngameScript
                             incr_item();
                             argument = "";
                         }
-                        if(temp_menu == 1)
+                        if (temp_menu == 1)
                         {
                             menu_level = 0;
                             iteration_val = 0;
@@ -1330,14 +745,57 @@ namespace IngameScript
                             temp_menu = 0;
                             temp_align_data_keep = 0;
                             temp_confirmval_2 = 0;
-                            confirm_sel_2 = false;                            
+                            confirm_sel_2 = false;
+                            argument = "";
+                        }
+                    }
+                }
+            }
+            //Menu 3 Confirmation Selection
+            if(argument.Contains("confirm"))
+            {
+                if(menu_level == 3)
+                {
+                    if (item_number == 11 && !confirm_sel_3)
+                    {
+                        incr_item();
+                        confirm_send = false;
+                        argument = "";
+                    }
+                    if (item_number == 11 && confirm_sel_3)
+                    {
+                        if (temp_menu == 0)
+                        {
+                            //save/load data here - process command temploadsave = jobtype, jobnumber = job position
+                            confirm_send = true;
+                            temp_jobnumber = 0;
+                            temp_loadsave = 0;
+                            temp_menu = 0;
+                            temp_confirmval_3 = 0;
+                            confirm_sel_3 = false;
+                            incr_item();
+                            argument = "";
+                        }
+                        if (temp_menu == 1)
+                        {
+                            menu_level = 0;
+                            iteration_val = 0;
+                            item_number = 0;
+                            confirm_send = true;
+                            temp_jobnumber = 0;
+                            temp_loadsave = 0;
+                            temp_menu = 0;
+                            temp_confirmval_3 = 0;
+                            confirm_sel_3 = false;
+                            incr_item();
                             argument = "";
                         }
                     }
                 }
             }
 
-            
+            #endregion
+            #region Menu 1 Skip Position Management
             if (argument.Contains("confirm"))
             {
                 // if menu is command configuration
@@ -1373,6 +831,8 @@ namespace IngameScript
                     }
                 }
             }
+            #endregion
+            #region Menu 2 Skip Position Management
             if (argument.Contains("confirm"))
             {
                 if (menu_level == 2)
@@ -1384,6 +844,780 @@ namespace IngameScript
                     }
                 }
             }
+            #endregion
+            #region Menu 3 Skip Position Management
+            if (argument.Contains("confirm"))
+            {
+                if (menu_level == 3)
+                {
+                    if (item_number >= 0 && item_number <= 1)
+                    {
+                        incr_item();
+                        argument = "";
+                    }
+                }
+            }
+            if (argument.Contains("confirm"))
+            {
+                if (menu_level == 3)
+                {
+                    if (item_number >= 2 && item_number <= 9)
+                    {
+                        item_number = 10;
+                        argument = "";
+                    }
+                }
+            }
+            if (argument.Contains("confirm"))
+            {
+                if (menu_level == 3)
+                {
+                    if (item_number == 10)
+                    {
+                        incr_item();
+                        argument = "";
+                    }
+                }
+            }
+            #endregion
+        }
+
+        public void process_iteration_values()
+        {
+
+            if (menu_level == 0)
+            {
+                if (iteration_val == 0)
+                {
+                    if (item_number == 0)
+                    {
+                        iteration_view = "";
+                    }
+                }
+            }
+            if (menu_level == 1)
+            {
+                if (iteration_val == 0)
+                {
+                    if (item_number == 0)
+                    {
+                        iteration_view = "1";
+                    }
+                    if (item_number == 7 || item_number == 8 || item_number == 9 || item_number == 10 || item_number == 11)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                }
+            }
+            if (menu_level == 2)
+            {
+                if (iteration_val == 0)
+                {
+                    if (item_number == 0 || item_number == 1 || item_number == 3 || item_number == 7 || item_number == 8)
+                    {
+                        iteration_view = "1";
+                    }
+                    if (item_number == 2 || item_number == 4 || item_number == 5)
+                    {
+                        iteration_view = "0.1";
+                    }
+                    if (item_number == 6)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                    if (item_number == 9)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                    if (item_number == 10)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                    if (item_number == 11)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                }
+
+                if (iteration_val == 1)
+                {
+                    if (item_number == 0 || item_number == 1 || item_number == 3 || item_number == 7 || item_number == 8)
+                    {
+                        iteration_view = "5";
+                    }
+                    if (item_number == 2 || item_number == 4 || item_number == 5)
+                    {
+                        iteration_view = "1.0";
+                    }
+                    if (item_number == 6)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                    if (item_number == 9)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                    if (item_number == 10)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                    if (item_number == 11)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                }
+
+                if (iteration_val == 2)
+                {
+                    if (item_number == 0 || item_number == 1 || item_number == 3 || item_number == 7 || item_number == 8)
+                    {
+                        iteration_view = "10";
+                    }
+                    if (item_number == 2 || item_number == 4 || item_number == 5)
+                    {
+                        iteration_view = "10.0";
+                    }
+                    if (item_number == 6)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                    if (item_number == 9)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                    if (item_number == 10)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                    if (item_number == 11)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                }
+            }
+
+            if (menu_level == 3)
+            {
+                if (iteration_val == 0)
+                {
+                    if (item_number == 0)
+                    {
+                        iteration_view = "Load/Save";
+                    }
+                    if (item_number == 1)
+                    {
+                        iteration_view = "1";
+                    }
+                    if (item_number == 10)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                    if (item_number == 11)
+                    {
+                        iteration_view = "Yes/No";
+                    }
+                }
+            }
+
+        }
+        public void process_menu_command(string argument)
+        {
+            if (argument == "setup" && setup_complete)
+            {
+                setup_complete = false;
+                argument = "";
+                Echo("Running setup...");
+            }
+            state_shifter();
+            //menu stuff
+            if (argument.Contains(jobconf))
+            {
+                menu_level = 2;
+                item_number = 0;
+                iteration_val = 0;
+                argument = "";
+            }
+            if (argument.Contains(command))
+            {
+                menu_level = 1;
+                item_number = 0;
+                iteration_val = 0;
+                argument = "";
+            }
+            if (argument.Contains(menureturn))
+            {
+                menu_level = 0;
+                item_number = 0;
+                scroll_item_val = 0;
+                iteration_val = 0;
+                argument = "";
+            }
+            if (argument.Contains(cancelcommand))
+            {
+                menu_level = 0;
+                item_number = 0;
+                iteration_val = 0;
+                scroll_item_val = 7;
+                Me.CustomData = "";
+                last_command = "";
+                argument = "";
+            }
+
+            if (argument.Contains(itemup)) //item index up
+            {
+                if (!item_up)
+                {
+                    incr_item();
+                    item_up = true;
+                    argument = "";
+                }
+            }
+            if (item_up)
+            {
+                item_up = false;
+            }
+
+            if (argument.Contains(itemdown)) //item index down
+            {
+                if (!item_down)
+                {
+                    decr_item();
+                    item_down = true;
+                    argument = "";
+                }
+            }
+            if (item_down)
+            {
+                item_down = false;
+            }
+            if (argument.Contains(incrsel))
+            {
+                if (menu_level == 0 && !has_iterated)
+                {
+                    iteration_val = 0;
+                    has_iterated = true;
+                }
+                if (menu_level == 1 && !has_iterated)
+                {
+                    iteration_val = 0;
+                    has_iterated = true;
+                }
+                if (menu_level == 2)
+                {
+                    if (!has_iterated && !has_iterated)
+                    {
+                        iteration_val++;
+                        has_iterated = true;
+                    }
+                    if (iteration_val > 2)
+                    {
+                        iteration_val = 0;
+                        has_iterated = true;
+                    }
+                }
+                //level 3 menu
+                if (menu_level == 3 && !has_iterated)
+                {
+                    iteration_val = 0;
+                    has_iterated = true;
+                }
+                argument = "";
+            }
+            if (has_iterated)
+            {
+                has_iterated = false;
+            }
+
+            if (argument.Contains(increase))
+            {
+                if (!has_increased)
+                {
+                    if (iteration_val == 0)
+                    {
+                        if (menu_level == 0)
+                        {
+                            incr_item();
+                            has_increased = true;
+                        }
+                        if (menu_level == 1 && !has_increased)
+                        {
+                            if (item_number == 0)
+                            {
+                                incr_scoll_command();
+                            }
+                            if (item_number == 7)
+                            {
+                                temp_cancel++;
+                            }
+                            if (item_number == 8)
+                            {
+                                temp_menu++;
+                            }
+                            if (item_number == 11)
+                            {
+                                temp_confirmval_1++;
+                            }
+                            has_increased = true;
+                        }
+
+                        if (menu_level == 2 && !has_increased)
+                        {
+                            if (item_number == 0)
+                            {
+                                temp_numPointsX++;
+                            }
+                            if (item_number == 1)
+                            {
+                                temp_numPointsY++;
+                            }
+                            if (item_number == 2)
+                            {
+                                temp_gridsize = temp_gridsize + 0.1;
+                            }
+                            if (item_number == 3)
+                            {
+                                temp_skipbores++;
+                            }
+                            if (item_number == 4)
+                            {
+                                temp_drillshaft_length = temp_drillshaft_length + 0.1;
+                            }
+                            if (item_number == 5)
+                            {
+                                temp_ignore_depth = temp_ignore_depth + 0.1;
+                            }
+                            if (item_number == 6)
+                            {
+                                temp_limit_flight_drones++;
+                            }
+                            if (item_number == 7)
+                            {
+                                temp_hard_drone_limit++;
+                            }
+                            if (item_number == 8)
+                            {
+                                temp_flight_factor++;
+                            }
+                            if (item_number == 9)
+                            {
+                                temp_limit_coreout++;
+                            }
+                            if (item_number == 10)
+                            {
+                                temp_menu++;
+                            }
+                            if (item_number == 11)
+                            {
+                                temp_confirmval_2++;
+                            }
+                            has_increased = true;
+                        }
+                        if (menu_level == 3 && !has_increased)
+                        {
+                            if (item_number == 0)
+                            {
+                                incr_scoll_command();
+                            }
+                            if (item_number == 1)
+                            {
+                                temp_jobnumber++;
+                            }
+                            if (item_number == 10)
+                            {
+                                temp_menu++;
+                            }
+                            if (item_number == 11)
+                            {
+                                temp_confirmval_3++;
+                            }
+                            has_increased = true;
+                        }
+
+                        if (iteration_val == 1)
+                        {
+                            if (menu_level == 2 && !has_increased)
+                            {
+                                if (item_number == 0)
+                                {
+                                    temp_numPointsX = temp_numPointsX + 5;
+                                }
+                                if (item_number == 1)
+                                {
+                                    temp_numPointsY = temp_numPointsY + 5;
+                                }
+                                if (item_number == 2)
+                                {
+                                    temp_gridsize = temp_gridsize + 1.0;
+                                }
+                                if (item_number == 3)
+                                {
+                                    temp_skipbores = temp_skipbores + 5;
+                                }
+                                if (item_number == 4)
+                                {
+                                    temp_drillshaft_length = temp_drillshaft_length + 1.0;
+                                }
+                                if (item_number == 5)
+                                {
+                                    temp_ignore_depth = temp_ignore_depth + 1.0;
+                                }
+                                if (item_number == 6)
+                                {
+                                    temp_limit_flight_drones = temp_limit_flight_drones + 1;
+                                }
+                                if (item_number == 7)
+                                {
+                                    temp_hard_drone_limit = temp_hard_drone_limit + 5;
+                                }
+                                if (item_number == 8)
+                                {
+                                    temp_flight_factor = temp_flight_factor + 5;
+                                }
+                                if (item_number == 9)
+                                {
+                                    temp_limit_coreout++;
+                                }
+                                if (item_number == 10)
+                                {
+                                    temp_menu++;
+                                }
+                                if (item_number == 11)
+                                {
+                                    temp_confirmval_2++;
+                                }
+                                has_increased = true;
+                            }
+                        }
+
+                        if (iteration_val == 2)
+                        {
+                            if (menu_level == 2 && !has_increased)
+                            {
+                                if (item_number == 0)
+                                {
+                                    temp_numPointsX = temp_numPointsX + 10;
+                                }
+                                if (item_number == 1)
+                                {
+                                    temp_numPointsY = temp_numPointsY + 10;
+                                }
+                                if (item_number == 2)
+                                {
+                                    temp_gridsize = temp_gridsize + 5.0;
+                                }
+                                if (item_number == 3)
+                                {
+                                    temp_skipbores = temp_skipbores + 10;
+                                }
+                                if (item_number == 4)
+                                {
+                                    temp_drillshaft_length = temp_drillshaft_length + 10.0;
+                                }
+                                if (item_number == 5)
+                                {
+                                    temp_ignore_depth = temp_ignore_depth + 10.0;
+                                }
+                                if (item_number == 6)
+                                {
+                                    temp_limit_flight_drones++;
+                                }
+                                if (item_number == 7)
+                                {
+                                    temp_hard_drone_limit = temp_hard_drone_limit + 10;
+                                }
+                                if (item_number == 8)
+                                {
+                                    temp_flight_factor = temp_flight_factor + 10;
+                                }
+                                if (item_number == 9)
+                                {
+                                    temp_limit_coreout++;
+                                }
+                                if (item_number == 10)
+                                {
+                                    temp_menu++;
+                                }
+                                if (item_number == 11)
+                                {
+                                    temp_confirmval_2++;
+                                }
+                                has_increased = true;
+                            }
+                        }
+
+                    }
+                    argument = "";
+                }
+                if (has_increased)
+                {
+                    has_increased = false;
+                }
+            }
+
+            if (argument.Contains(decrease))
+            {
+                if (!has_decreased)
+                {
+                    if (iteration_val == 0)
+                    {
+                        if (menu_level == 0)
+                        {
+                            decr_item();
+                            has_decreased = true;
+                        }
+                        if (menu_level == 1 && !has_decreased)
+                        {
+                            if (item_number == 0)
+                            {
+                                decr_scoll_command();
+                            }
+                            if (item_number == 7)
+                            {
+                                temp_cancel--;
+                            }
+                            if (item_number == 8)
+                            {
+                                temp_menu--;
+                            }
+                            if (item_number == 11)
+                            {
+                                temp_confirmval_1--;
+                            }
+                            has_decreased = true;
+                        }
+                        if (menu_level == 2 && !has_decreased)
+                        {
+                            if (item_number == 0)
+                            {
+                                temp_numPointsX--;
+                            }
+                            if (item_number == 1)
+                            {
+                                temp_numPointsY--;
+                            }
+                            if (item_number == 2)
+                            {
+                                temp_gridsize = temp_gridsize - 0.1;
+                            }
+                            if (item_number == 3)
+                            {
+                                temp_skipbores--;
+                            }
+                            if (item_number == 4)
+                            {
+                                temp_drillshaft_length = temp_drillshaft_length - 0.1;
+                            }
+                            if (item_number == 5)
+                            {
+                                temp_ignore_depth = temp_ignore_depth - 0.1;
+                            }
+                            if (item_number == 6)
+                            {
+                                temp_limit_flight_drones--;
+                            }
+                            if (item_number == 7)
+                            {
+                                temp_hard_drone_limit--;
+                            }
+                            if (item_number == 8)
+                            {
+                                temp_flight_factor--;
+                            }
+                            if (item_number == 9)
+                            {
+                                temp_limit_coreout--;
+                            }
+                            if (item_number == 10)
+                            {
+                                temp_menu--;
+                            }
+                            if (item_number == 11)
+                            {
+                                temp_confirmval_2--;
+                            }
+                            has_decreased = true;
+                        }
+
+                        if (menu_level == 3 && !has_decreased)
+                        {
+                            if (item_number == 0)
+                            {
+                                decr_scoll_command();
+                            }
+                            if (item_number == 1)
+                            {
+                                temp_jobnumber--;
+                            }
+                            if (item_number == 10)
+                            {
+                                temp_menu--;
+                            }
+                            if (item_number == 11)
+                            {
+                                temp_confirmval_3--;
+                            }
+                            has_decreased = true;
+                        }
+                    }
+
+                    if (iteration_val == 1)
+                    {
+                        if (menu_level == 2 && !has_decreased)
+                        {
+                            if (item_number == 0)
+                            {
+                                temp_numPointsX = temp_numPointsX - 5;
+                            }
+                            if (item_number == 1)
+                            {
+                                temp_numPointsY = temp_numPointsY - 5;
+                            }
+                            if (item_number == 2)
+                            {
+                                temp_gridsize = temp_gridsize - 1.0;
+                            }
+                            if (item_number == 3)
+                            {
+                                temp_skipbores = temp_skipbores - 5;
+                            }
+                            if (item_number == 4)
+                            {
+                                temp_drillshaft_length = temp_drillshaft_length - 1.0;
+                            }
+                            if (item_number == 5)
+                            {
+                                temp_ignore_depth = temp_ignore_depth - 1.0;
+                            }
+                            if (item_number == 6)
+                            {
+                                temp_limit_flight_drones--;
+                            }
+                            if (item_number == 7)
+                            {
+                                temp_hard_drone_limit = temp_hard_drone_limit - 5;
+                            }
+                            if (item_number == 8)
+                            {
+                                temp_flight_factor = temp_flight_factor - 5;
+                            }
+                            if (item_number == 9)
+                            {
+                                temp_limit_coreout--;
+                            }
+                            if (item_number == 10)
+                            {
+                                temp_menu--;
+                            }
+                            if (item_number == 11)
+                            {
+                                temp_confirmval_2--;
+                            }
+                            has_decreased = true;
+                        }
+                    }
+
+                    if (iteration_val == 2)
+                    {
+                        if (menu_level == 2 && !has_decreased)
+                        {
+                            if (item_number == 0)
+                            {
+                                temp_numPointsX = temp_numPointsX - 10;
+                            }
+                            if (item_number == 1)
+                            {
+                                temp_numPointsY = temp_numPointsY - 10;
+                            }
+                            if (item_number == 2)
+                            {
+                                temp_gridsize = temp_gridsize - 5.0;
+                            }
+                            if (item_number == 3)
+                            {
+                                temp_skipbores = temp_skipbores - 10;
+                            }
+                            if (item_number == 4)
+                            {
+                                temp_drillshaft_length = temp_drillshaft_length - 10.0;
+                            }
+                            if (item_number == 5)
+                            {
+                                temp_ignore_depth = temp_ignore_depth - 10.0;
+                            }
+                            if (item_number == 6)
+                            {
+                                temp_limit_flight_drones--;
+                            }
+                            if (item_number == 7)
+                            {
+                                temp_hard_drone_limit = temp_hard_drone_limit - 10;
+                            }
+                            if (item_number == 8)
+                            {
+                                temp_flight_factor = temp_flight_factor - 10;
+                            }
+                            if (item_number == 9)
+                            {
+                                temp_limit_coreout--;
+                            }
+                            if (item_number == 10)
+                            {
+                                temp_menu--;
+                            }
+                            if (item_number == 11)
+                            {
+                                temp_confirmval_2--;
+                            }
+                            has_decreased = true;
+                        }
+                    }
+                }
+                argument = "";
+            }
+            if (has_decreased)
+            {
+                has_decreased = false;
+            }
+
+            process_iteration_values();
+
+            process_display_totals();
+
+            process_confirm_commands(argument);
+
+
+        }
+        public void Main(string argument, UpdateType updateSource)
+        {
+            IMyGridTerminalSystem gts = GridTerminalSystem as IMyGridTerminalSystem;
+            if (!setup_complete)
+            {
+                Setup(gts);
+            }
+
+            Presence_Check();
+
+
+            if (!setup_complete)
+            {
+                Echo($"Setup not complete");
+                return;
+            }
+
+            displayinfo_local();
+
+            //logic start
+            if (customData_Old != controller_actual.CustomData)
+            {
+                GetCustomData(controller_actual.CustomData, controller_actual);
+                customData_Old = controller_actual.CustomData;
+            }
+            state_shifter();
+            process_job_status();
+            process_menu_command(argument);
+
+
+            //display menu
             if (setup_complete)
             {
                 LineResolver(item_number);
@@ -1394,6 +1628,7 @@ namespace IngameScript
                 }
             }
 
+            //Reset command state
             if (confirm_send)
             {
                 confirm_send = false;
@@ -1402,7 +1637,7 @@ namespace IngameScript
             {
                 confirm_command = false;
             }
-            
+
             Echo(sbtexttemp.ToString());
             sbtexttemp.Clear();
         }
@@ -1436,6 +1671,7 @@ namespace IngameScript
             scroll_command_item = new List<string>();
             display_view = new StringBuilder();
             mcd_new = new StringBuilder();
+            scroll_job_item = new List<string>();
             //scroll command item text                
             scroll_command_item.Add("Initialize mining grid");
             scroll_command_item.Add("Reset drones");
@@ -1445,6 +1681,11 @@ namespace IngameScript
             scroll_command_item.Add("Freeze command (dev)");
             scroll_command_item.Add("Stop command (dev)");
             scroll_command_item.Add("");
+
+            scroll_job_item.Add("Load Job");
+            scroll_job_item.Add("Save Job");
+            scroll_job_item.Add("");
+
 
             //menu text - level 0
             item_line_0.Add("Mining Job Configuration");
@@ -1457,7 +1698,7 @@ namespace IngameScript
             item_line_7.Add("");
             item_line_8.Add("");
             item_line_9.Add("");
-            item_line_10.Add("");            
+            item_line_10.Add("");
             item_line_11.Add("");
 
             //menu text - level 1
@@ -1484,9 +1725,24 @@ namespace IngameScript
             item_line_6.Add("Limit drones in-flight:");
             item_line_7.Add("In-Flight Hard Limit:");
             item_line_8.Add("In-Flight Factor:");
-            item_line_9.Add("Core out:");           
+            item_line_9.Add("Core out:");
             item_line_10.Add("Main Menu:");
             item_line_11.Add("Confirm:");
+
+            //menu text - level 3
+            item_line_0.Add("Load/Save Job:");
+            item_line_1.Add("Job number:");
+            item_line_2.Add("Job Name:");
+            item_line_3.Add("");
+            item_line_4.Add("");
+            item_line_5.Add("");
+            item_line_6.Add("");
+            item_line_7.Add("");
+            item_line_8.Add("");
+            item_line_9.Add("");
+            item_line_10.Add("Main Menu:");
+            item_line_11.Add("Confirm:");
+
             menu_level = 0;
             item_number = 0;
             Me.CustomData = "";
@@ -1534,6 +1790,78 @@ namespace IngameScript
             program_blocks_all.Clear();
             setup_complete = true;
             sbtexttemp.AppendLine("Setup complete!");
+        }
+
+        private void Presence_Check()
+        {
+            if (at_tg.Count <= 0)
+            {
+                Echo($"Main antenna with tag {comms.Replace("[", "[[").Replace("]", "]]")} not found. Please setup and configure main GMDC controller.");
+                return;
+            }
+
+            if (display_tag_main.Count > 0)
+            {
+                if (display_tag_main[0] != null)
+                {
+                    if (display_actual != display_tag_main[0])
+                    {
+                        display_actual = display_tag_main[0];
+                    }
+                    if (surface != ((IMyTextSurfaceProvider)display_actual).GetSurface(scnpanel))
+                    {
+                        surface = ((IMyTextSurfaceProvider)display_actual).GetSurface(scnpanel);
+                    }
+                }
+                else
+                {
+                    Echo($"Main Displays with tag '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
+                    setup_complete = false;
+                    return;
+                }
+            }
+            else
+            {
+                Echo($"Main Displays with tag '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
+                setup_complete = false;
+                return;
+            }
+
+            if (surface != null)
+            {
+                if (surface.ContentType != ContentType.TEXT_AND_IMAGE)
+                {
+                    surface.ContentType = ContentType.TEXT_AND_IMAGE;
+                }
+            }
+            else
+            {
+                Echo($"Panel:'{scnpanel}' on '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
+                setup_complete = false;
+                return;
+            }
+            if (program_blocks_tag.Count > 0)
+            {
+                if (program_blocks_tag[0] != null)
+                {
+                    if (controller_actual != program_blocks_tag[0])
+                    {
+                        controller_actual = program_blocks_tag[0];
+                    }
+                }
+                else
+                {
+                    Echo($"Drone controller with with tag '{drone_controller_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
+                    setup_complete = false;
+                    return;
+                }
+            }
+            else
+            {
+                Echo($"Drone controller with with tag '{drone_controller_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
+                setup_complete = false;
+                return;
+            }
         }
 
         void FetchJobData(string input)
@@ -2132,7 +2460,7 @@ namespace IngameScript
                 else
                 {
                     temp_align_data_keep = 0;
-                    customDataAlignTargetValid = false;                    
+                    customDataAlignTargetValid = false;
                 }
                 if (gpsCommand.Length > 22)
                 {
@@ -2300,6 +2628,7 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_1} 2. {item_line_1[menu_level]}");
                 display_view.Append('\n');
+                display_view.Append($"{line_highlight_2} 2. {item_line_2[menu_level]}");
                 display_view.Append('\n');
                 display_view.Append('\n');
                 display_view.Append($"Command: {last_command}");
@@ -2371,30 +2700,53 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append($"-----------");
                 display_view.Append('\n');
-                display_view.Append($"Surface Distance: {surfaceDistance}");                
+                display_view.Append($"Surface Distance: {surfaceDistance}");
                 display_view.Append('\n');
                 display_view.Append("Target Coordinates:");
                 display_view.Append('\n');
                 display_view.Append($"X: {Math.Round(main_gps_coords.X, 2)}, Y: {Math.Round(main_gps_coords.Y, 2)}, Z: {Math.Round(main_gps_coords.Z, 2)}");
-                display_view.Append('\n');                               
+                display_view.Append('\n');
                 if (customDataAlignTargetValid)
                 {
                     display_view.Append("Align Coordinates:");
                     display_view.Append('\n');
                     display_view.Append($"X: {alignGPSCoordinates.X}, Y: {alignGPSCoordinates.Y}, Z: {alignGPSCoordinates.Z}");
-                    display_view.Append('\n');                    
+                    display_view.Append('\n');
                 }
 
             }
+            if (menu_level == 3)
+            {
+                display_view.Append($"{line_highlight_0} 1. {item_line_0[menu_level]}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_1} 2. {item_line_1[menu_level]}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_2} 2. {item_line_2[menu_level]}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_9} ..  {item_line_9[menu_level]}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_10} ..  {item_line_10[menu_level]}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_11} ..  {item_line_11[menu_level]}");
+                if (confirm_command)
+                {
+                    display_view.Append('\n');
+                    display_view.Append('\n');
+                    display_view.Append("Command confirmed!");
+                    display_view.Append('\n');
+                }
+                display_view.Append('\n');
+                display_view.Append('\n');
+                display_view.Append($"Command: {last_command}");
+                display_view.Append('\n');
+            }
         }
-
-        
 
         public void incr_item()
         {
             if (menu_level == 0)
             {
-                item_max_limit = 1;
+                item_max_limit = 2;
                 item_min_limit = 0;
             }
             if (menu_level == 1)
@@ -2403,6 +2755,11 @@ namespace IngameScript
                 item_min_limit = 0;
             }
             if (menu_level == 2)
+            {
+                item_max_limit = 11;
+                item_min_limit = 0;
+            }
+            if (menu_level == 3)
             {
                 item_max_limit = 11;
                 item_min_limit = 0;
@@ -2418,7 +2775,7 @@ namespace IngameScript
         {
             if (menu_level == 0)
             {
-                item_max_limit = 1;
+                item_max_limit = 2;
                 item_min_limit = 0;
             }
             if (menu_level == 1)
@@ -2430,7 +2787,11 @@ namespace IngameScript
             {
                 item_max_limit = 11;
                 item_min_limit = 0;
-
+            }
+            if (menu_level == 3)
+            {
+                item_max_limit = 1;
+                item_min_limit = 0;
             }
             item_number--;
             if (item_number < item_min_limit)
@@ -2445,6 +2806,11 @@ namespace IngameScript
                 scroll_item_val_min_limit = 0;
                 scroll_item_val_max_limit = 6;
             }
+            if (menu_level == 3)
+            {
+                scroll_item_val_min_limit = 0;
+                scroll_item_val_max_limit = 1;
+            }
             scroll_item_val++;
             if (scroll_item_val > scroll_item_val_max_limit)
             {
@@ -2458,6 +2824,11 @@ namespace IngameScript
             {
                 scroll_item_val_min_limit = 0;
                 scroll_item_val_max_limit = 6;
+            }
+            if (menu_level == 3)
+            {
+                scroll_item_val_min_limit = 0;
+                scroll_item_val_max_limit = 1;
             }
             scroll_item_val--;
             if (scroll_item_val < scroll_item_val_min_limit)
@@ -2577,8 +2948,8 @@ namespace IngameScript
                 temp_id_name_2 = secondary;
                 sbtexttemp.AppendLine($"Resorting to default config {temp_id_name} {temp_id_name_2}.");
             }
-            
-            
+
+
             sbtexttemp.AppendLine($"Drone info:{drone_tag}");
             drone_controller_tag = "[" + drone_tag + " " + comms + "]";
             display_main_tag = "[" + drone_tag + " " + intfs + " " + postfix + "]";
