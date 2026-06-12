@@ -522,7 +522,7 @@ namespace IngameScript
             if (!string.IsNullOrEmpty(str) && !string.IsNullOrEmpty(str2))
             {
                 _JobStorage.Set("GMDCJobData", "Jobinfo", str);
-                _JobStorage.Set("jobdata", "gridstatus", str);
+                _JobStorage.Set("jobdata", "gridstatus", str2);
                 _JobStorage.Set("GMDCJobData", "loadsave", "true");
                 _JobStorage.Set("GMDCJobData", "jobname", strn);
                 block.CustomData = _JobStorage.ToString();
