@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Drawing.Printing;
 using System.Dynamic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using VRage;
 using VRage.Collections;
@@ -141,6 +142,7 @@ namespace IngameScript
         double new_ignore_depth;
         double new_gridsize;
         int new_skipbores;
+        int new_loadsave;
         int new_numPointsY;
         int new_numPointsX;
         int new_flight_factor;
@@ -150,27 +152,29 @@ namespace IngameScript
         bool new_limit_coreout;
         int read_limit_flight_drones = 0;
         int read_limit_coreout = 0;
+        int read_loadsave = 0;
         int new_int_limit_flight_drones = 0;
         int new_int_limit_coreout = 0;
         int temp_confirmval_1 = 0;
         int temp_confirmval_2 = 0;
         int temp_confirmval_3 = 0;
         double surfaceDistance = 0.0;
-        List<string> item_line_0;
-        List<string> item_line_1;
-        List<string> item_line_2;
-        List<string> item_line_3;
-        List<string> item_line_4;
-        List<string> item_line_5;
-        List<string> item_line_6;
-        List<string> item_line_7;
-        List<string> item_line_8;
-        List<string> item_line_9;
-        List<string> item_line_10;
-        List<string> item_line_11;
-        List<string> item_line_12;
-        List<string> scroll_command_item;
-        List<string> scroll_job_item;
+        List<string> item_line_0 = new List<string>();
+        List<string> item_line_1 = new List<string>();
+        List<string> item_line_2 = new List<string>();
+        List<string> item_line_3 = new List<string>();
+        List<string> item_line_4 = new List<string>();
+        List<string> item_line_5 = new List<string>();
+        List<string> item_line_6 = new List<string>();
+        List<string> item_line_7 = new List<string>();
+        List<string> item_line_8 = new List<string>();
+        List<string> item_line_9 = new List<string>();
+        List<string> item_line_10 = new List<string>();
+        List<string> item_line_11 = new List<string>();
+        List<string> item_line_12 = new List<string>();
+        List<string> scroll_command_item = new List<string>();
+        List<string> scroll_job_item = new List<string>();
+        List<string> jobID = new List<string>();
         int scroll_item_val = 0;
         int scroll_item_val_min_limit = 0;
         int scroll_item_val_max_limit = 7;
@@ -191,31 +195,392 @@ namespace IngameScript
         string temp_id_name_2;
         int stateshift = 0;
         bool setup_complete = false;
-        StringBuilder display_view;
-        StringBuilder mcd_new;
+        StringBuilder display_view = new StringBuilder();
+        StringBuilder mcd_new = new StringBuilder();
         IMyTerminalBlock display_actual;
-        List<IMyTerminalBlock> display_all;
-        List<IMyTerminalBlock> display_tag_main;
-        List<IMyProgrammableBlock> program_blocks_all;
-        List<IMyProgrammableBlock> program_blocks_tag;
-        List<IMyRadioAntenna> at_all;
-        List<IMyRadioAntenna> at_tg;
+        List<IMyTerminalBlock> display_all = new List<IMyTerminalBlock>();
+        List<IMyTerminalBlock> display_tag_main = new List<IMyTerminalBlock>();
+        List<IMyProgrammableBlock> program_blocks_all = new List<IMyProgrammableBlock>();
+        List<IMyProgrammableBlock> program_blocks_tag = new List<IMyProgrammableBlock>();
+        List<IMyRadioAntenna> at_all = new List<IMyRadioAntenna>();
+        List<IMyRadioAntenna> at_tg = new List<IMyRadioAntenna>();
+        List<IMyRemoteControl> remoteControlAll = new List<IMyRemoteControl>();
+        List<IMyRemoteControl> remoteControlTag = new List<IMyRemoteControl>();
         Vector3D alignGPSCoordinates;
         bool customDataAlignTargetValid;
         MyIni _dataStore = new MyIni();
         MyIni _customDataStore = new MyIni();
+        MyIni _JobStorage = new MyIni();
+        MyIni _JobRCStorage = new MyIni();
+        MyIni _JobWrite = new MyIni();
+        MyIni _commandStore = new MyIni();
         string jobdata = "";
         string jobinfo = "Jobinfo";
         string gmdccategory = "GMDCJobData";
         StringBuilder sbtexttemp = new StringBuilder();
+        string jobname = "";
         string customData_Old = "";
         IMyTextSurface surface;
+
 
 
         public void Save()
         {
         }
 
+        public void LoadJobStoreNames(IMyTerminalBlock block)
+        {
+            if (_JobStorage.TryParse(block.CustomData))
+            {
+                var str = "";
+                bool _ismissing = false;                
+                if (_JobStorage.ContainsSection("GMDCJobID"))
+                {
+                    //Name 1
+                    if (_JobStorage.ContainsKey("GMDCJobID", "Job1Name"))
+                    {
+                        str = _JobStorage.Get("GMDCJobID", "Job1Name").ToString().Trim();
+                        if (jobID[0] != null)
+                        {
+                            jobID[0] = str;
+                        }
+                    }
+                    else
+                    {
+                        if (jobID[0] != null)
+                        {
+                            jobID[0] = "";
+                        }
+                        _ismissing = true;
+                    }
+                    //Name 2
+                    if (_JobStorage.ContainsKey("GMDCJobID", "Job2Name"))
+                    {
+                        str = _JobStorage.Get("GMDCJobID", "Job2Name").ToString().Trim();
+                        if (jobID[1] != null)
+                        {
+                            jobID[1] = str;
+                        }
+                    }
+                    else
+                    {
+                        if (jobID[1] != null)
+                        {
+                            jobID[1] = "";
+                        }
+                        _ismissing = true;
+                    }
+                    //Name 3
+                    if (_JobStorage.ContainsKey("GMDCJobID", "Job3Name"))
+                    {
+                        str = _JobStorage.Get("GMDCJobID", "Job3Name").ToString().Trim();
+                        if (jobID[2] != null)
+                        {
+                            if (jobID[2] != null)
+                            {
+                                jobID[2] = str;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        jobID[2] = "";
+                        _ismissing = true;
+                    }
+                    //Name 4
+                    if (_JobStorage.ContainsKey("GMDCJobID", "Job4Name"))
+                    {
+                        str = _JobStorage.Get("GMDCJobID", "Job4Name").ToString().Trim();
+                        if (jobID[3] != null)
+                        {
+                            jobID[3] = str;
+                        }
+                    }
+                    else
+                    {
+                        if (jobID[3] != null)
+                        {
+                            jobID[3] = "";
+                        }
+                        _ismissing = true;
+                    }
+                    //Name 5
+                    if (_JobStorage.ContainsKey("GMDCJobID", "Job5Name"))
+                    {
+                        str = _JobStorage.Get("GMDCJobID", "Job5Name").ToString().Trim();
+                        if (jobID[4] != null)
+                        {
+                            jobID[4] = str;
+                        }
+                    }
+                    else
+                    {
+                        if (jobID[4] != null)
+                        {
+                            jobID[4] = "";
+                        }
+                        _ismissing = true;
+                    }
+                }
+                else
+                {
+                    _ismissing = true;
+                }
+
+                if (_ismissing)
+                {
+                    //write new ini file here
+                    WriteJobStoreNames(block);
+                    block.CustomData = _JobStorage.ToString();
+                    _JobStorage.Clear();
+                }
+            }
+        }
+
+        public void JobWrite(IMyTerminalBlock block, int JobID, string jobconf, string jobstate, string rcjob, string target, string align, string distance, string strn)
+        {
+            if (_JobWrite.TryParse(block.CustomData.ToString()))
+            {
+                if(JobID == 0)
+                {
+                    _JobWrite.Set("GMDCJobID", "Job1Name", strn);
+                    _JobWrite.Set("GMDCJobID", "Job1Info", jobconf);
+                    _JobWrite.Set("GMDCJobID", "Job1State", jobstate);
+                    _JobWrite.Set("GMDCJobID", "Job1RCInfo", rcjob);
+                    _JobWrite.Set("GMDCJobID", "Job1RCTarget", target);
+                    _JobWrite.Set("GMDCJobID", "Job1RCAlign", align);
+                    _JobWrite.Set("GMDCJobID", "Job1RCSafe", distance);
+                }
+                if (JobID == 1)
+                {
+                    _JobWrite.Set("GMDCJobID", "Job2Name", strn);
+                    _JobWrite.Set("GMDCJobID", "Job2Info", jobconf);
+                    _JobWrite.Set("GMDCJobID", "Job2State", jobstate);
+                    _JobWrite.Set("GMDCJobID", "Job2RCInfo", rcjob);
+                    _JobWrite.Set("GMDCJobID", "Job2RCTarget", target);
+                    _JobWrite.Set("GMDCJobID", "Job2RCAlign", align);
+                    _JobWrite.Set("GMDCJobID", "Job2RCSafe", distance);
+                }
+                if (JobID == 2)
+                {
+                    _JobWrite.Set("GMDCJobID", "Job3Name", strn);
+                    _JobWrite.Set("GMDCJobID", "Job3Info", jobconf);
+                    _JobWrite.Set("GMDCJobID", "Job3State", jobstate);
+                    _JobWrite.Set("GMDCJobID", "Job3RCInfo", rcjob);
+                    _JobWrite.Set("GMDCJobID", "Job3RCTarget", target);
+                    _JobWrite.Set("GMDCJobID", "Job3RCAlign", align);
+                    _JobWrite.Set("GMDCJobID", "Job3RCSafe", distance);
+                }
+                if (JobID == 3)
+                {
+                    _JobWrite.Set("GMDCJobID", "Job4Name", strn);
+                    _JobWrite.Set("GMDCJobID", "Job4Info", jobconf);
+                    _JobWrite.Set("GMDCJobID", "Job4State", jobstate);
+                    _JobWrite.Set("GMDCJobID", "Job4RCInfo", rcjob);
+                    _JobWrite.Set("GMDCJobID", "Job4RCTarget", target);
+                    _JobWrite.Set("GMDCJobID", "Job4RCAlign", align);
+                    _JobWrite.Set("GMDCJobID", "Job4RCSafe", distance);
+                }
+                if (JobID == 4)
+                {
+                    _JobWrite.Set("GMDCJobID", "Job5Name", strn);
+                    _JobWrite.Set("GMDCJobID", "Job5Info", jobconf);
+                    _JobWrite.Set("GMDCJobID", "Job5State", jobstate);
+                    _JobWrite.Set("GMDCJobID", "Job5RCInfo", rcjob);
+                    _JobWrite.Set("GMDCJobID", "Job5RCTarget", target);
+                    _JobWrite.Set("GMDCJobID", "Job5RCAlign", align);
+                    _JobWrite.Set("GMDCJobID", "Job5RCSafe", distance);
+                }
+                block.CustomData = _JobWrite.ToString();
+            }
+        }
+        public void StoreMiningJobData(IMyTerminalBlock block, int jobID)
+        {
+            var strn = "";
+            var str = "";
+            var str2 = "";
+            //RC info
+            var str3 = "";
+            var str4 = "";
+            var str5 = "";
+            var str6 = "";
+            _JobStorage.Clear();
+            _JobRCStorage.Clear();
+            if (_JobStorage.TryParse(block.CustomData.ToString()))
+            {
+                str = _JobStorage.Get("GMDCJobData", "Jobinfo").ToString();
+                str2 = _JobStorage.Get("jobdata", "gridstatus").ToString();
+                strn = _JobStorage.Get("GMDCJobData", "jobname").ToString();
+            }
+            else
+            {
+                str = "";
+                str2 = "";
+            }
+            if (remoteControlTag.Count > 0)
+            {
+                if (remoteControlTag[0] != null)
+                {
+                    if (_JobRCStorage.TryParse(remoteControlTag[0].CustomData.ToString()))
+                    {
+                        str3 = _JobRCStorage.Get("GMDCJobData", "Jobinfo").ToString();
+                        str4 = _JobRCStorage.Get("GMDCJobData", "TargetGPS").ToString();
+                        str5 = _JobRCStorage.Get("GMDCJobData", "AlignGPS").ToString();
+                        str6 = _JobRCStorage.Get("GMDCJobData", "SafeAlignDistance").ToString();
+                    }
+                    else
+                    {
+                        str3 = "";
+                        str4 = "";
+                        str5 = "";
+                        str6 = "";
+                    }
+                }
+            }
+            _JobWrite.Clear();
+            JobWrite(block, jobID, str, str2, str3, str4, str5, str6,strn);
+            _JobWrite.Clear();
+            _JobStorage.Clear();
+            _JobRCStorage.Clear();
+            LoadJobStoreNames(block);
+        }
+
+        public void LoadMiningJobData(IMyTerminalBlock block, int jobID)
+        {
+            var str = "";
+            var str2 = "";
+            //RC info
+            var str3 = "";
+            var str4 = "";
+            var str5 = "";
+            var str6 = "";
+            var strn = "";
+            _JobStorage.Clear();
+            _JobRCStorage.Clear();
+            if (_JobStorage.TryParse(block.CustomData.ToString()))
+            {
+                if (jobID == 0)
+                {
+                    strn = _JobStorage.Get("GMDCJobID", "Job1Name").ToString().Trim();
+                    str = _JobStorage.Get("GMDCJobID", "Job1Info").ToString().Trim();
+                    str2 = _JobStorage.Get("GMDCJobID", "Job1State").ToString().Trim();
+                    str3 = _JobStorage.Get("GMDCJobID", "Job1RCInfo").ToString().Trim();
+                    str4 = _JobStorage.Get("GMDCJobID", "Job1RCTarget").ToString().Trim();
+                    str5 = _JobStorage.Get("GMDCJobID", "Job1RCAlign").ToString().Trim();
+                    str6 = _JobStorage.Get("GMDCJobID", "Job1RCSafe").ToString().Trim();
+                }
+                if (jobID == 1)
+                {
+                    strn = _JobStorage.Get("GMDCJobID", "Job2Name").ToString().Trim();
+                    str = _JobStorage.Get("GMDCJobID", "Job2Info").ToString().Trim();
+                    str2 = _JobStorage.Get("GMDCJobID", "Job2State").ToString().Trim();
+                    str3 = _JobStorage.Get("GMDCJobID", "Job2RCInfo").ToString().Trim();
+                    str4 = _JobStorage.Get("GMDCJobID", "Job2RCTarget").ToString().Trim();
+                    str5 = _JobStorage.Get("GMDCJobID", "Job2RCAlign").ToString().Trim();
+                    str6 = _JobStorage.Get("GMDCJobID", "Job2RCSafe").ToString().Trim();
+                }
+                if (jobID == 2)
+                {
+                    strn = _JobStorage.Get("GMDCJobID", "Job2Name").ToString().Trim();
+                    str = _JobStorage.Get("GMDCJobID", "Job3Info").ToString().Trim();
+                    str2 = _JobStorage.Get("GMDCJobID", "Job3State").ToString().Trim();
+                    str3 = _JobStorage.Get("GMDCJobID", "Job3RCInfo").ToString().Trim();
+                    str4 = _JobStorage.Get("GMDCJobID", "Job3RCTarget").ToString().Trim();
+                    str5 = _JobStorage.Get("GMDCJobID", "Job3RCAlign").ToString().Trim();
+                    str6 = _JobStorage.Get("GMDCJobID", "Job3RCSafe").ToString().Trim();
+                }
+                if (jobID == 3)
+                {
+                    strn = _JobStorage.Get("GMDCJobID", "Job4Name").ToString().Trim();
+                    str = _JobStorage.Get("GMDCJobID", "Job4Info").ToString().Trim();
+                    str2 = _JobStorage.Get("GMDCJobID", "Job4State").ToString().Trim();
+                    str3 = _JobStorage.Get("GMDCJobID", "Job4RCInfo").ToString().Trim();
+                    str4 = _JobStorage.Get("GMDCJobID", "Job4RCTarget").ToString().Trim();
+                    str5 = _JobStorage.Get("GMDCJobID", "Job4RCAlign").ToString().Trim();
+                    str6 = _JobStorage.Get("GMDCJobID", "Job4RCSafe").ToString().Trim();
+                }
+                if (jobID == 4)
+                {
+                    strn = _JobStorage.Get("GMDCJobID", "Job5Name").ToString().Trim();
+                    str = _JobStorage.Get("GMDCJobID", "Job5Info").ToString().Trim();
+                    str2 = _JobStorage.Get("GMDCJobID", "Job5State").ToString().Trim();
+                    str3 = _JobStorage.Get("GMDCJobID", "Job5RCInfo").ToString().Trim();
+                    str4 = _JobStorage.Get("GMDCJobID", "Job5RCTarget").ToString().Trim();
+                    str5 = _JobStorage.Get("GMDCJobID", "Job5RCAlign").ToString().Trim();
+                    str6 = _JobStorage.Get("GMDCJobID", "Job5RCSafe").ToString().Trim();
+                }
+            }
+            else
+            {
+                str = "";
+                str2 = "";
+                str3 = "";
+                str4 = "";
+                str5 = "";
+                str6 = "";
+            }
+
+            if (!string.IsNullOrEmpty(str) && !string.IsNullOrEmpty(str2))
+            {
+                _JobStorage.Set("GMDCJobData", "Jobinfo", str);
+                _JobStorage.Set("jobdata", "gridstatus", str);
+                _JobStorage.Set("GMDCJobData", "loadsave", "true");
+                _JobStorage.Set("GMDCJobData", "jobname", strn);
+                block.CustomData = _JobStorage.ToString();
+            }
+            _JobStorage.Clear();
+            if (!string.IsNullOrEmpty(str3) && !string.IsNullOrEmpty(str4) && !string.IsNullOrEmpty(str5) && !string.IsNullOrEmpty(str6))
+            {
+                if (remoteControlTag.Count > 0)
+                {
+                    if (remoteControlTag[0] != null)
+                    {
+                        if (_JobRCStorage.TryParse(remoteControlTag[0].CustomData.ToString()))
+                        {
+                            _JobRCStorage.Set("GMDCJobData", "Jobinfo", str3);
+                            _JobRCStorage.Set("GMDCJobData", "TargetGPS", str4);
+                            _JobRCStorage.Set("GMDCJobData", "AlignGPS", str5);
+                            _JobRCStorage.Set("GMDCJobData", "SafeAlignDistance", str6);
+                            remoteControlTag[0].CustomData = _JobRCStorage.ToString();
+                        }
+                    }
+                }
+            }            
+            _JobRCStorage.Clear();
+        }
+        
+        public void WriteJobStoreNames(IMyTerminalBlock block)
+        {
+            if (jobID.Count > 0)
+            {
+                if (jobID[0] != null)
+                {
+                    _JobStorage.Set("GMDCJobID", "Job1Name", jobID[0]);
+                }
+                if (jobID[1] != null)
+                {
+                    _JobStorage.Set("GMDCJobID", "Job2Name", jobID[1]);
+                }
+                if (jobID[2] != null)
+                {
+                    _JobStorage.Set("GMDCJobID", "Job3Name", jobID[2]);
+                }
+                if (jobID[3] != null)
+                {
+                    _JobStorage.Set("GMDCJobID", "Job4Name", jobID[3]);
+                }
+                if (jobID[4] != null)
+                {
+                    _JobStorage.Set("GMDCJobID", "Job5Name", jobID[4]);
+                }
+            }
+            
+        }
+
+        public void LoadJobInfo(IMyTerminalBlock block, int jobnum)
+        {
+
+        }
         public void GetAntennaDataStore(string input)
         {
             if (!string.IsNullOrEmpty(input) && !string.IsNullOrWhiteSpace(input))
@@ -602,6 +967,17 @@ namespace IngameScript
                 {
                     if (item_number == 2)
                     {
+                        if(jobID.Count > 0)
+                        {
+                            
+                            if (program_blocks_tag.Count > 0)
+                            {
+                                if (program_blocks_tag[0] != null)
+                                {
+                                    LoadJobStoreNames(program_blocks_tag[0]);
+                                }
+                            }
+                        }
                         menu_level = 3;
                         item_number = 0;
                         argument = "";
@@ -633,8 +1009,10 @@ namespace IngameScript
                         if (temp_menu == 0)
                         {
                             command_resolver();
-                            Me.CustomData = disp_command;
-                            last_command = disp_command;
+                            write_datacomand(Me, disp_command);
+                            //Me.CustomData = disp_command;
+                            read_datacomand(Me); //sets lastcommand here
+                            //last_command = disp_command;
                             confirm_command = true;
                             item_number = 0;
                             scroll_item_val = 0;
@@ -779,12 +1157,35 @@ namespace IngameScript
                         if (temp_menu == 0)
                         {
                             //save/load data here - process command temploadsave = jobtype, jobnumber = job position
+
+                            if (scroll_item_val == 0) //load on confirm
+                            {
+                                //loadfunction here
+                                if (program_blocks_tag.Count > 0)
+                                {
+                                    if (program_blocks_tag[0] != null)
+                                    {
+                                        LoadMiningJobData(program_blocks_tag[0], new_job_number);
+                                    }
+                                }
+                            }
+                            if (scroll_item_val == 1) //save on confirm
+                            {
+                                if (program_blocks_tag.Count > 0)
+                                {
+                                    if (program_blocks_tag[0] != null)
+                                    {
+                                        StoreMiningJobData(program_blocks_tag[0], new_job_number);
+                                    }
+                                }
+                            }
                             confirm_send = true;
                             temp_jobnumber = 0;
                             temp_loadsave = 0;
                             temp_menu = 0;
                             temp_confirmval_3 = 0;
                             confirm_sel_3 = false;
+                            //scroll_item_val = 0;
                             iteration_val = 0;
                             incr_item();
                             argument = "";
@@ -1656,8 +2057,15 @@ namespace IngameScript
         void StoreJobData(IMyTerminalBlock block, string input)
         {
             _customDataStore.Clear();
-            _customDataStore.Set(gmdccategory, jobinfo, input);
-            block.CustomData = _customDataStore.ToString();
+            if (_customDataStore.TryParse(block.CustomData.ToString()))
+            {
+                _customDataStore.Set(gmdccategory, jobinfo, input);
+            }
+            else
+            {
+                _customDataStore.Set(gmdccategory, jobinfo, input);
+            }
+                block.CustomData = _customDataStore.ToString();
             _customDataStore.Clear();
         }
         private void Setup(IMyGridTerminalSystem gts)
@@ -1666,23 +2074,30 @@ namespace IngameScript
             display_main_tag = "[" + drone_tag + " " + intfs + " " + postfix + "]";
             ant_tg = "[" + drone_tag + " " + comms + "]";
             secondary_tag = $"[{secondary}]";
-            item_line_0 = new List<string>();
-            item_line_1 = new List<string>();
-            item_line_2 = new List<string>();
-            item_line_3 = new List<string>();
-            item_line_4 = new List<string>();
-            item_line_5 = new List<string>();
-            item_line_6 = new List<string>();
-            item_line_7 = new List<string>();
-            item_line_8 = new List<string>();
-            item_line_9 = new List<string>();
-            item_line_10 = new List<string>();
-            item_line_11 = new List<string>();
-            item_line_12 = new List<string>();
-            scroll_command_item = new List<string>();
-            display_view = new StringBuilder();
-            mcd_new = new StringBuilder();
-            scroll_job_item = new List<string>();
+            item_line_0.Clear();
+            item_line_1.Clear();
+            item_line_2.Clear();
+            item_line_3.Clear();
+            item_line_4.Clear();
+            item_line_5.Clear();
+            item_line_6.Clear();
+            item_line_7.Clear();
+            item_line_8.Clear();
+            item_line_9.Clear();
+            item_line_10.Clear();
+            item_line_11.Clear();
+            item_line_12.Clear();
+            scroll_command_item.Clear();
+            display_view.Clear();
+            mcd_new.Clear();
+            scroll_job_item.Clear();
+            jobID.Clear();
+            //add jobs
+            jobID.Add("");
+            jobID.Add("");
+            jobID.Add("");
+            jobID.Add("");
+            jobID.Add("");
             //scroll command item text                
             scroll_command_item.Add("Initialize mining grid");
             scroll_command_item.Add("Reset drones");
@@ -1757,8 +2172,8 @@ namespace IngameScript
             menu_level = 0;
             item_number = 0;
             Me.CustomData = "";
-            at_all = new List<IMyRadioAntenna>();
-            at_tg = new List<IMyRadioAntenna>();
+            at_all.Clear();
+            at_tg.Clear();
             gts.GetBlocksOfType<IMyRadioAntenna>(at_all, b => b.CubeGrid == Me.CubeGrid);
             for (int i = 0; i < at_all.Count; i++)
             {
@@ -1777,8 +2192,8 @@ namespace IngameScript
                 }
             }
             at_all.Clear();
-            display_all = new List<IMyTerminalBlock>();
-            display_tag_main = new List<IMyTerminalBlock>();
+            display_all.Clear();
+            display_tag_main.Clear();
             gts.GetBlocksOfType<IMyTerminalBlock>(display_all, b => b.CubeGrid == Me.CubeGrid);
             for (int i = 0; i < display_all.Count; i++)
             {
@@ -1788,8 +2203,8 @@ namespace IngameScript
                 }
             }
             display_all.Clear();
-            program_blocks_all = new List<IMyProgrammableBlock>();
-            program_blocks_tag = new List<IMyProgrammableBlock>();
+            program_blocks_all.Clear();
+            program_blocks_tag.Clear();
             gts.GetBlocksOfType<IMyProgrammableBlock>(program_blocks_all);
             for (int i = 0; i < program_blocks_all.Count; i++)
             {
@@ -1799,6 +2214,17 @@ namespace IngameScript
                 }
             }
             program_blocks_all.Clear();
+            remoteControlAll.Clear();
+            remoteControlTag.Clear();
+            gts.GetBlocksOfType<IMyRemoteControl>(remoteControlAll, b => b.CubeGrid == Me.CubeGrid);
+            for (int i = 0; i < remoteControlAll.Count; i++)
+            {
+                if (remoteControlAll[i].CustomName.Contains(drone_controller_tag) || remoteControlAll[i].CustomName.Contains(comms))
+                {                    
+                    remoteControlTag.Add(remoteControlAll[i]);
+                }
+            }
+            remoteControlAll.Clear();
             setup_complete = true;
             sbtexttemp.AppendLine("Setup complete!");
         }
@@ -1881,6 +2307,8 @@ namespace IngameScript
             if (_customDataStore.TryParse(input))
             {
                 var str = "";
+                str = _customDataStore.Get(gmdccategory, "jobname").ToString().Trim();
+                jobname = str;
                 str = _customDataStore.Get(gmdccategory, jobinfo).ToString().Trim();
                 jobdata = str;
                 str = _customDataStore.Get(gmdccategory, "TargetGPS").ToString().Trim();
@@ -2595,7 +3023,7 @@ namespace IngameScript
             display_view.Clear();
             if (menu_level == 0)
             {
-                display_view.Append($"GMDI {secondary} - {ver}");
+                display_view.Append($"GMDI {secondary} - {ver} - Current Job: [{jobname}]");
                 display_view.Append('\n');
                 display_view.Append("------------");
                 display_view.Append('\n');
@@ -2605,7 +3033,7 @@ namespace IngameScript
             }
             if (menu_level == 1)
             {
-                display_view.Append($"GMDI {secondary}- {ver}");
+                display_view.Append($"GMDI {secondary} - {ver} - Current Job: [{jobname}]");
                 display_view.Append('\n');
                 display_view.Append("------------");
                 display_view.Append('\n');
@@ -2615,7 +3043,7 @@ namespace IngameScript
             }
             if (menu_level == 2)
             {
-                display_view.Append($"GMDI {secondary}- {ver}");
+                display_view.Append($"GMDI {secondary} - {ver} - Current Job: [{jobname}]");
                 display_view.Append('\n');
                 display_view.Append("------------");
                 display_view.Append('\n');
@@ -2625,7 +3053,7 @@ namespace IngameScript
             }
             if (menu_level == 3)
             {
-                display_view.Append($"GMDI {secondary}- {ver}");
+                display_view.Append($"GMDI {secondary} - {ver} - Current Job: [{jobname}]");
                 display_view.Append('\n');
                 display_view.Append("------------");
                 display_view.Append('\n');
@@ -2715,18 +3143,26 @@ namespace IngameScript
             }
             if (menu_level == 3)
             {
-                display_view.Append($"{line_highlight_0} 1. {item_line_0[menu_level]} {scroll_job_item[scroll_item_val]}");
+                if (jobID[new_job_number] != null)
+                {
+                    job_display = jobID[new_job_number];
+                }
+                else
+                {
+                    job_display = "undefined";
+                }
+                    display_view.Append($"{line_highlight_0} 1. {item_line_0[menu_level]} {scroll_job_item[scroll_item_val]}");
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_1} 2. {item_line_1[menu_level]} {new_job_number + 1}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_2} 3. {item_line_2[menu_level]}");
+                display_view.Append($"{line_highlight_2} 3. {item_line_2[menu_level]} {job_display}");
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_9} ..  {item_line_9[menu_level]}");
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_10} 11. {item_line_10[menu_level]} {menu_display}");
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_11} 12. {item_line_11[menu_level]} {displayconfirm_3}");
-                if (confirm_command)
+                if (confirm_send)
                 {
                     display_view.Append('\n');
                     display_view.Append('\n');
@@ -2893,6 +3329,39 @@ namespace IngameScript
             {
                 disp_command = "";
             }
+        }
+        public void write_datacomand(IMyTerminalBlock block,string command)
+        {
+            _commandStore.Clear();
+            if (_commandStore.TryParse(block.CustomData.ToString()))
+            {
+                //Manage customdata command
+                _commandStore.Set("GMDIJobData", "interfacecommand", command);
+            }
+            else
+            {
+                _commandStore.Set("GMDIJobData", "interfacecommand", command);
+            }
+            block.CustomData = _commandStore.ToString();
+            _commandStore.Clear();
+        }
+        public void read_datacomand(IMyTerminalBlock block)
+        {
+            var str = "";
+            _commandStore.Clear();
+            if (_commandStore.TryParse(block.CustomData.ToString()))
+            {
+                //Manage customdata command
+                str =_commandStore.Get("GMDIJobData", "interfacecommand").ToString();
+                last_command = str;
+            }
+            else
+            {
+                last_command = "";
+                write_datacomand(block, "");
+                
+            }
+            _commandStore.Clear();
         }
         void runicon(int state)
         {
