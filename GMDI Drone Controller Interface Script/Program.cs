@@ -2595,7 +2595,7 @@ namespace IngameScript
             display_view.Clear();
             if (menu_level == 0)
             {
-                display_view.Append($"GMDI {secondary_tag} - {ver}");
+                display_view.Append($"GMDI {secondary} - {ver}");
                 display_view.Append('\n');
                 display_view.Append("------------");
                 display_view.Append('\n');
@@ -2605,7 +2605,7 @@ namespace IngameScript
             }
             if (menu_level == 1)
             {
-                display_view.Append($"GMDI {secondary_tag}- {ver}");
+                display_view.Append($"GMDI {secondary}- {ver}");
                 display_view.Append('\n');
                 display_view.Append("------------");
                 display_view.Append('\n');
@@ -2615,7 +2615,7 @@ namespace IngameScript
             }
             if (menu_level == 2)
             {
-                display_view.Append($"GMDI {secondary_tag}- {ver}");
+                display_view.Append($"GMDI {secondary}- {ver}");
                 display_view.Append('\n');
                 display_view.Append("------------");
                 display_view.Append('\n');
@@ -2625,7 +2625,7 @@ namespace IngameScript
             }
             if (menu_level == 3)
             {
-                display_view.Append($"GMDI {secondary_tag}- {ver}");
+                display_view.Append($"GMDI {secondary}- {ver}");
                 display_view.Append('\n');
                 display_view.Append("------------");
                 display_view.Append('\n');
