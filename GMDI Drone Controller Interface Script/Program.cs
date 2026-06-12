@@ -291,9 +291,9 @@ namespace IngameScript
             new_job_number = jobnumber + temp_jobnumber;
             if(new_job_number < 0)
             {
-                new_job_number = 4;
+                new_job_number = 4;                
             }
-            if (new_job_number < 4)
+            if (new_job_number > 4)
             {
                 new_job_number = 0;
             }
@@ -447,9 +447,9 @@ namespace IngameScript
             //temp job management
             if (temp_jobnumber < 0)
             {
-                temp_jobnumber = 5;
+                temp_jobnumber = 4;
             }
-            if (temp_jobnumber > 5)
+            if (temp_jobnumber > 4)
             {
                 temp_jobnumber = 0;
             }
@@ -785,6 +785,7 @@ namespace IngameScript
                             temp_menu = 0;
                             temp_confirmval_3 = 0;
                             confirm_sel_3 = false;
+                            iteration_val = 0;
                             incr_item();
                             argument = "";
                         }
@@ -799,7 +800,6 @@ namespace IngameScript
                             temp_menu = 0;
                             temp_confirmval_3 = 0;
                             confirm_sel_3 = false;
-                            incr_item();
                             argument = "";
                         }
                     }
@@ -862,7 +862,7 @@ namespace IngameScript
             {
                 if (menu_level == 3)
                 {
-                    if (item_number >= 0 && item_number <= 1)
+                    if (item_number == 0)
                     {
                         incr_item();
                         argument = "";
@@ -873,7 +873,7 @@ namespace IngameScript
             {
                 if (menu_level == 3)
                 {
-                    if (item_number >= 2 && item_number <= 9)
+                    if (item_number == 1)
                     {
                         item_number = 10;
                         argument = "";
@@ -1171,7 +1171,6 @@ namespace IngameScript
                             }
                             has_increased = true;
                         }
-
                         if (menu_level == 2 && !has_increased)
                         {
                             if (item_number == 0)
@@ -1702,7 +1701,7 @@ namespace IngameScript
             //menu text - level 0
             item_line_0.Add("Mining Job Configuration");
             item_line_1.Add("Command Menu");
-            item_line_2.Add("");
+            item_line_2.Add("Job Management Menu");
             item_line_3.Add("");
             item_line_4.Add("");
             item_line_5.Add("");
@@ -2624,6 +2623,16 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append('\n');
             }
+            if (menu_level == 3)
+            {
+                display_view.Append($"GMDI {secondary_tag}- {ver}");
+                display_view.Append('\n');
+                display_view.Append("------------");
+                display_view.Append('\n');
+                display_view.Append($"Job Management. - Iteration: {iteration_view} Item: {(item_number + 1)}");
+                display_view.Append('\n');
+                display_view.Append('\n');
+            }
             display_view.Append('\n');
             if (!data_valid)
             {
@@ -2640,7 +2649,7 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_1} 2. {item_line_1[menu_level]}");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_2} 2. {item_line_2[menu_level]}");
+                display_view.Append($"{line_highlight_2} 3. {item_line_2[menu_level]}");
                 display_view.Append('\n');
                 display_view.Append('\n');
                 display_view.Append($"Command: {last_command}");
@@ -2704,6 +2713,31 @@ namespace IngameScript
                     display_view.Append('\n');
                 }
             }
+            if (menu_level == 3)
+            {
+                display_view.Append($"{line_highlight_0} 1. {item_line_0[menu_level]} {scroll_job_item[scroll_item_val]}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_1} 2. {item_line_1[menu_level]} {new_job_number + 1}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_2} 3. {item_line_2[menu_level]}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_9} ..  {item_line_9[menu_level]}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_10} 11. {item_line_10[menu_level]} {menu_display}");
+                display_view.Append('\n');
+                display_view.Append($"{line_highlight_11} 12. {item_line_11[menu_level]} {displayconfirm_3}");
+                if (confirm_command)
+                {
+                    display_view.Append('\n');
+                    display_view.Append('\n');
+                    display_view.Append("Command confirmed!");
+                    display_view.Append('\n');
+                }
+                display_view.Append('\n');
+                display_view.Append('\n');
+                display_view.Append($"Command: {last_command}");
+                display_view.Append('\n');
+            }
             if (data_valid)
             {
                 display_view.Append('\n');
@@ -2727,31 +2761,7 @@ namespace IngameScript
                 }
 
             }
-            if (menu_level == 3)
-            {
-                display_view.Append($"{line_highlight_0} 1. {item_line_0[menu_level]}: {scroll_job_item}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_1} 2. {item_line_1[menu_level]}: {new_job_number}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_2} 3. {item_line_2[menu_level]}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_9} ..  {item_line_9[menu_level]}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_10} 11. {item_line_10[menu_level]}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_11} 12. {item_line_11[menu_level]}");
-                if (confirm_command)
-                {
-                    display_view.Append('\n');
-                    display_view.Append('\n');
-                    display_view.Append("Command confirmed!");
-                    display_view.Append('\n');
-                }
-                display_view.Append('\n');
-                display_view.Append('\n');
-                display_view.Append($"Command: {last_command}");
-                display_view.Append('\n');
-            }
+
         }
 
         public void incr_item()
