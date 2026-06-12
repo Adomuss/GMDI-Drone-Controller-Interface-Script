@@ -51,7 +51,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
 
-        string ver = "V0.507";
+        string ver = "V0.600";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -59,7 +59,7 @@ namespace IngameScript
         string display_main_tag = "";
         string secondary = "";
         string secondary_tag = "";
-        string ant_tg = "";
+      //  string ant_tg = "";
         int menu_level = 0;
         int item_min_limit = 0;
         int item_max_limit = 9;
@@ -69,11 +69,11 @@ namespace IngameScript
         bool data_valid = false;
         IMyProgrammableBlock controller_actual;
         string last_command = "";
-        string customData1;
-        string customData2;
-        string customData3;
-        string customData4;
-        string customData5;
+     //   string customData1;
+      //  string customData2;
+      //  string customData3;
+      //  string customData4;
+        //string customData5;
         string customData6;
         string customData7;
         string customData8;
@@ -84,12 +84,12 @@ namespace IngameScript
         string customData13;
         string customData14;
         string customData15;
-        string customData16;
-        string customData17;
+       // string customData16;
+        //string customData17;
         string customData18;
         string customData19;
         string customData20;
-        string customData21;
+        //string customData21;
         string customData22;
         double ignore_depth = 0.0;
         bool limit_flight_drones = false;
@@ -98,8 +98,7 @@ namespace IngameScript
         int hard_drone_limit = 10;
         double gridsize;
         int numPointsY;
-        int numPointsX;
-        int jobnumber;
+        int numPointsX;        
         Vector3D main_gps_coords;
         double drillshaft_length;
         int skipbores;
@@ -142,7 +141,7 @@ namespace IngameScript
         double new_ignore_depth;
         double new_gridsize;
         int new_skipbores;
-        int new_loadsave;
+        //int new_loadsave;
         int new_numPointsY;
         int new_numPointsX;
         int new_flight_factor;
@@ -152,7 +151,7 @@ namespace IngameScript
         bool new_limit_coreout;
         int read_limit_flight_drones = 0;
         int read_limit_coreout = 0;
-        int read_loadsave = 0;
+        //int read_loadsave = 0;
         int new_int_limit_flight_drones = 0;
         int new_int_limit_coreout = 0;
         int temp_confirmval_1 = 0;
@@ -191,8 +190,8 @@ namespace IngameScript
         string line_highlight_10 = "[ ]";
         string line_highlight_11 = "[ ]";
         string icon = "";
-        string temp_id_name;
-        string temp_id_name_2;
+      //  string temp_id_name;
+     //   string temp_id_name_2;
         int stateshift = 0;
         bool setup_complete = false;
         StringBuilder display_view = new StringBuilder();
@@ -653,7 +652,7 @@ namespace IngameScript
 
         public void process_display_totals()
         {
-            new_job_number = jobnumber + temp_jobnumber;
+            new_job_number = 0 + temp_jobnumber;
             if(new_job_number < 0)
             {
                 new_job_number = 4;                
@@ -2072,7 +2071,7 @@ namespace IngameScript
         {
             drone_controller_tag = "[" + drone_tag + " " + comms + "]";
             display_main_tag = "[" + drone_tag + " " + intfs + " " + postfix + "]";
-            ant_tg = "[" + drone_tag + " " + comms + "]";
+          //  ant_tg = "[" + drone_tag + " " + comms + "]";
             secondary_tag = $"[{secondary}]";
             item_line_0.Clear();
             item_line_1.Clear();
@@ -2430,11 +2429,11 @@ namespace IngameScript
             //Define GPS coordinates from 
             if (gpsCommand.Length < 10)
             {
-                customData1 = "";
-                customData2 = "";
-                customData3 = "";
-                customData4 = "";
-                customData5 = "";
+              //  customData1 = "";
+              //  customData2 = "";
+             //   customData3 = "";
+               // customData4 = "";
+              //  customData5 = "";
                 customData6 = "";
                 customData7 = "";
                 customData8 = "";
@@ -2445,12 +2444,12 @@ namespace IngameScript
                 customData13 = "";
                 customData14 = "";
                 customData15 = "";
-                customData16 = "";
-                customData17 = "";
+                //customData16 = "";
+               // customData17 = "";
                 customData18 = "";
                 customData19 = "";
                 customData20 = "";
-                customData21 = "";
+                //customData21 = "";
                 customData22 = "";
                 sbtexttemp.AppendLine("Please use prospector to assign a mining location");
                 data_valid = false;
@@ -2463,11 +2462,11 @@ namespace IngameScript
             if (gpsCommand.Length > 4)
             {
                 main_gps_coords = new Vector3D(Double.Parse(gpsCommand[2]), Double.Parse(gpsCommand[3]), Double.Parse(gpsCommand[4]));
-                customData1 = gpsCommand[1];
-                customData2 = gpsCommand[2];
-                customData3 = gpsCommand[3];
-                customData4 = gpsCommand[4];
-                customData5 = gpsCommand[5];
+             //   customData1 = gpsCommand[1];
+              //  customData2 = gpsCommand[2];
+              //  customData3 = gpsCommand[3];
+              //  customData4 = gpsCommand[4];
+             //   customData5 = gpsCommand[5];
             }
 
             if (gpsCommand.Length < 6)
@@ -2833,11 +2832,11 @@ namespace IngameScript
                 bool targetAlignZ;
                 if (gpsCommand.Length > 16)
                 {
-                    customData16 = gpsCommand[16];
+                  //  customData16 = gpsCommand[16];
                 }
                 if (gpsCommand.Length > 17)
                 {
-                    customData17 = gpsCommand[17];
+                  //  customData17 = gpsCommand[17];
                 }
                 if (gpsCommand.Length > 18)
                 {
@@ -2853,7 +2852,7 @@ namespace IngameScript
                 }
                 if (gpsCommand.Length > 21)
                 {
-                    customData21 = gpsCommand[21];
+                    //customData21 = gpsCommand[21];
                 }
                 if (gpsCommand.Length > 22)
                 {
@@ -3391,68 +3390,6 @@ namespace IngameScript
             }
             runicon(stateshift);
         }
-        public void drone_custom_data_check(string custominfo, int index)
-        {
-            sbtexttemp.AppendLine("Checking for drone config information..");
-            String[] temp_id = custominfo.Split(':');
-            sbtexttemp.AppendLine($"{temp_id.Length}");
-
-            if (temp_id.Length > 0)
-            {
-                if (temp_id[0] != null)
-                {
-                    temp_id_name = temp_id[0];
-                    drone_tag = temp_id_name;
-                    if (temp_id_name == "" || temp_id_name == null)
-                    {
-                        temp_id_name = drone_tag;
-                        sbtexttemp.AppendLine($"Resorting to default scout tag {drone_tag}");
-                    }
-                }
-            }
-            else
-            {
-                temp_id_name = drone_tag;
-                sbtexttemp.AppendLine($"Resorting to default ID#.{drone_tag}");
-            }
-            if (temp_id.Length > 1)
-            {
-                if (temp_id[1] != null)
-                {
-                    temp_id_name_2 = temp_id[1];
-                    secondary = temp_id_name_2;
-                    if (temp_id_name_2 == null)
-                    {
-                        temp_id_name_2 = secondary;
-                        sbtexttemp.AppendLine($"Resorting to default scout tag {secondary}");
-                    }
-                }
-            }
-            else
-            {
-                temp_id_name_2 = secondary;
-                sbtexttemp.AppendLine($"Resorting to default ID#.{drone_tag}");
-            }
-            if (temp_id.Length == 0)
-            {
-                temp_id_name = drone_tag;
-                temp_id_name_2 = secondary;
-                sbtexttemp.AppendLine($"Resorting to default config {temp_id_name} {temp_id_name_2}.");
-            }
-
-
-            sbtexttemp.AppendLine($"Drone info:{drone_tag}");
-            drone_controller_tag = "[" + drone_tag + " " + comms + "]";
-            display_main_tag = "[" + drone_tag + " " + intfs + " " + postfix + "]";
-            ant_tg = "[" + drone_tag + " " + comms + "]";
-            secondary_tag = $"[{secondary}]";
-            if (secondary == "" || secondary == " " || secondary == null)
-            {
-                secondary_tag = "";
-            }
-            Me.CustomName = $"GMDI Programmable Block {secondary_tag} [{drone_tag} {intfs}]";
-        }
-
         //end program
     }
 }
