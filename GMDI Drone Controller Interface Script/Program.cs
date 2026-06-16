@@ -51,7 +51,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
 
-        string ver = "V0.600";
+        string ver = "V0.601";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -1621,6 +1621,7 @@ namespace IngameScript
                             {
                                 temp_confirmval_2++;
                             }
+
                             has_increased = true;
                         }
                         if (menu_level == 3 && !has_increased)
@@ -1643,6 +1644,7 @@ namespace IngameScript
                             }
                             has_increased = true;
                         }
+                    }
 
                         if (iteration_val == 1)
                         {
@@ -1754,9 +1756,7 @@ namespace IngameScript
                                 }
                                 has_increased = true;
                             }
-                        }
-
-                    }
+                        }                    
                     argument = "";
                 }
                 if (has_increased)
