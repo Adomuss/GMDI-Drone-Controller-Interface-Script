@@ -51,7 +51,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
 
-        string ver = "V0.601";
+        string ver = "V0.605";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -101,7 +101,7 @@ namespace IngameScript
         int numPointsX;        
         Vector3D main_gps_coords;
         double drillshaft_length;
-        int skipbores;
+        int skipbores = 0;
         string command_dist;
         string iteration_view;
         string limit_display;
@@ -109,6 +109,7 @@ namespace IngameScript
         string cancel_display;
         string menu_display;
         string job_display;
+        string perimieterOnly_display;
         double temp_drillshaft_length = 0.0;
         double temp_ignore_depth = 0.0;
         double temp_gridsize = 0.0;
@@ -743,11 +744,24 @@ namespace IngameScript
                 new_flight_factor = 0;
             }
 
+            //skipbores (perimieter only) management
+            if (temp_skipbores < 0)
+            {
+                temp_skipbores = 1;
+            }
+            if (temp_skipbores > 1)
+            {
+                temp_skipbores = 0;
+            }
 
             new_skipbores = skipbores + temp_skipbores;
             if (new_skipbores < 0)
             {
                 new_skipbores = 0;
+            }
+            if (new_skipbores > 1)
+            {
+                new_skipbores = 1;
             }
             //coreout management
             if (temp_limit_coreout < 0)
@@ -833,6 +847,15 @@ namespace IngameScript
             if (temp_loadsave == 1)
             {
                 job_display = "Save";
+            }
+            //Perimiter only display
+            if(new_skipbores == 0)
+            {
+                perimieterOnly_display = "No";
+            }
+            if(new_skipbores == 1)
+            {
+                perimieterOnly_display = "Yes";
             }
             //menu management
             if (temp_menu < 0)
@@ -1353,7 +1376,7 @@ namespace IngameScript
 
                 if (iteration_val == 1)
                 {
-                    if (item_number == 0 || item_number == 1 || item_number == 3 || item_number == 7 || item_number == 8)
+                    if (item_number == 0 || item_number == 1  || item_number == 7 || item_number == 8)
                     {
                         iteration_view = "5";
                     }
@@ -1361,7 +1384,7 @@ namespace IngameScript
                     {
                         iteration_view = "1.0";
                     }
-                    if (item_number == 6)
+                    if (item_number == 6 || item_number == 3)
                     {
                         iteration_view = "Yes/No";
                     }
@@ -1381,7 +1404,7 @@ namespace IngameScript
 
                 if (iteration_val == 2)
                 {
-                    if (item_number == 0 || item_number == 1 || item_number == 3 || item_number == 7 || item_number == 8)
+                    if (item_number == 0 || item_number == 1  || item_number == 7 || item_number == 8)
                     {
                         iteration_view = "10";
                     }
@@ -1389,7 +1412,7 @@ namespace IngameScript
                     {
                         iteration_view = "10.0";
                     }
-                    if (item_number == 6)
+                    if (item_number == 6 || item_number == 3)
                     {
                         iteration_view = "Yes/No";
                     }
@@ -1664,7 +1687,7 @@ namespace IngameScript
                                 }
                                 if (item_number == 3)
                                 {
-                                    temp_skipbores = temp_skipbores + 5;
+                                    temp_skipbores++;
                                 }
                                 if (item_number == 4)
                                 {
@@ -1720,7 +1743,7 @@ namespace IngameScript
                                 }
                                 if (item_number == 3)
                                 {
-                                    temp_skipbores = temp_skipbores + 10;
+                                    temp_skipbores++; ;
                                 }
                                 if (item_number == 4)
                                 {
@@ -1889,7 +1912,7 @@ namespace IngameScript
                             }
                             if (item_number == 3)
                             {
-                                temp_skipbores = temp_skipbores - 5;
+                                temp_skipbores--;
                             }
                             if (item_number == 4)
                             {
@@ -1945,7 +1968,7 @@ namespace IngameScript
                             }
                             if (item_number == 3)
                             {
-                                temp_skipbores = temp_skipbores - 10;
+                                temp_skipbores--;
                             }
                             if (item_number == 4)
                             {
@@ -2144,7 +2167,7 @@ namespace IngameScript
             item_line_0.Add("Number Grid X positions:");
             item_line_1.Add("Number Grid Y positions:");
             item_line_2.Add("Grid Spread:");
-            item_line_3.Add("Skip Bores:");
+            item_line_3.Add("Perimeter Only:");
             item_line_4.Add("Drill Depth:");
             item_line_5.Add("Ignore Depth:");
             item_line_6.Add("Limit drones in-flight:");
@@ -3115,7 +3138,7 @@ namespace IngameScript
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_2} 3. {item_line_2[menu_level]} {new_gridsize}m");
                 display_view.Append('\n');
-                display_view.Append($"{line_highlight_3} 4. {item_line_3[menu_level]} {new_skipbores}");
+                display_view.Append($"{line_highlight_3} 4. {item_line_3[menu_level]} {perimieterOnly_display}");
                 display_view.Append('\n');
                 display_view.Append($"{line_highlight_4} 5. {item_line_4[menu_level]} {new_drillshaft_length}m");
                 display_view.Append('\n');
