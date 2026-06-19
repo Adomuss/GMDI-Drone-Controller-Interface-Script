@@ -51,7 +51,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
 
-        string ver = "V0.605";
+        string ver = "V0.606";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -3043,183 +3043,97 @@ namespace IngameScript
         public void screen_display()
         {
             display_view.Clear();
-            if (menu_level == 0)
-            {
-                display_view.Append($"GMDI {secondary} - {ver} - Current Job: [{jobname}]");
-                display_view.Append('\n');
-                display_view.Append("------------");
-                display_view.Append('\n');
-                display_view.Append($"Main Menu - Iteration: {iteration_view} Item: {(item_number + 1)}");
-                display_view.Append('\n');
-                display_view.Append('\n');
-            }
-            if (menu_level == 1)
-            {
-                display_view.Append($"GMDI {secondary} - {ver} - Current Job: [{jobname}]");
-                display_view.Append('\n');
-                display_view.Append("------------");
-                display_view.Append('\n');
-                display_view.Append($"Command Menu - Iteration: {iteration_view} Item: {(item_number + 1)}");
-                display_view.Append('\n');
-                display_view.Append('\n');
-            }
-            if (menu_level == 2)
-            {
-                display_view.Append($"GMDI {secondary} - {ver} - Current Job: [{jobname}]");
-                display_view.Append('\n');
-                display_view.Append("------------");
-                display_view.Append('\n');
-                display_view.Append($"Mining Job Config. - Iteration: {iteration_view} Item: {(item_number + 1)}");
-                display_view.Append('\n');
-                display_view.Append('\n');
-            }
-            if (menu_level == 3)
-            {
-                display_view.Append($"GMDI {secondary} - {ver} - Current Job: [{jobname}]");
-                display_view.Append('\n');
-                display_view.Append("------------");
-                display_view.Append('\n');
-                display_view.Append($"Job Management. - Iteration: {iteration_view} Item: {(item_number + 1)}");
-                display_view.Append('\n');
-                display_view.Append('\n');
-            }
-            display_view.Append('\n');
+
+            // 1. Unified Header (Avoids repeating this logic 4 times)
+            display_view.Append("GMDI ").Append(secondary).Append(" - ").Append(ver)
+                        .Append(" - Current Job: [").Append(jobname).Append("]").AppendLine();
+            display_view.AppendLine("------------");
+
+            // 2. Menu Title
+            if (menu_level == 0) display_view.Append("Main Menu - Iteration: ").Append(iteration_view).Append(" Item: ").Append(item_number + 1);
+            else if (menu_level == 1) display_view.Append("Command Menu - Iteration: ").Append(iteration_view).Append(" Item: ").Append(item_number + 1);
+            else if (menu_level == 2) display_view.Append("Mining Job Config. - Iteration: ").Append(iteration_view).Append(" Item: ").Append(item_number + 1);
+            else if (menu_level == 3) display_view.Append("Job Management. - Iteration: ").Append(iteration_view).Append(" Item: ").Append(item_number + 1);
+
+            display_view.Append("\n\n\n"); // Triple newline
+
+            // 3. Validation Warning
             if (!data_valid)
             {
-                display_view.Append('\n');
-                display_view.Append("No target coordinates found!");
-                display_view.Append('\n');
-                display_view.Append("Please assign valid target using prospector.");
-                display_view.Append('\n');
-                display_view.Append('\n');
+                display_view.AppendLine("\nNo target coordinates found!");
+                display_view.AppendLine("Please assign valid target using prospector.\n");
             }
+
+            // 4. Menu Items
             if (menu_level == 0)
             {
-                display_view.Append($"{line_highlight_0} 1. {item_line_0[menu_level]}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_1} 2. {item_line_1[menu_level]}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_2} 3. {item_line_2[menu_level]}");
-                display_view.Append('\n');
-                display_view.Append('\n');
-                display_view.Append($"Command: {last_command}");
-                display_view.Append('\n');
+                display_view.Append(line_highlight_0).Append(" 1. ").AppendLine(item_line_0[menu_level]);
+                display_view.Append(line_highlight_1).Append(" 2. ").AppendLine(item_line_1[menu_level]);
+                display_view.Append(line_highlight_2).Append(" 3. ").AppendLine(item_line_2[menu_level]);
+                display_view.Append("\nCommand: ").AppendLine(last_command);
             }
-            if (menu_level == 1)
+            else if (menu_level == 1)
             {
-                display_view.Append($"{line_highlight_0} 1. {scroll_command_item[scroll_item_val]}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_1} ..  {item_line_1[menu_level]}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_7} 8. {item_line_7[menu_level]} {cancel_display}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_8} 9.  {item_line_8[menu_level]} {menu_display}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_9} ..  {item_line_9[menu_level]}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_11} 11. {item_line_11[menu_level]} {displayconfirm_1}");
-                if (confirm_command)
-                {
-                    display_view.Append('\n');
-                    display_view.Append('\n');
-                    display_view.Append("Command confirmed!");
-                    display_view.Append('\n');
-                }
-                display_view.Append('\n');
-                display_view.Append('\n');
-                display_view.Append($"Command: {last_command}");
-                display_view.Append('\n');
+                display_view.Append(line_highlight_0).Append(" 1. ").AppendLine(scroll_command_item[scroll_item_val]);
+                display_view.Append(line_highlight_1).Append(" ..  ").AppendLine(item_line_1[menu_level]);
+                display_view.Append(line_highlight_7).Append(" 8. ").Append(item_line_7[menu_level]).Append(" ").AppendLine(cancel_display);
+                display_view.Append(line_highlight_8).Append(" 9.  ").Append(item_line_8[menu_level]).Append(" ").AppendLine(menu_display);
+                display_view.Append(line_highlight_9).Append(" ..  ").AppendLine(item_line_9[menu_level]);
+                display_view.Append(line_highlight_11).Append(" 11. ").Append(item_line_11[menu_level]).Append(" ").AppendLine(displayconfirm_1);
+
+                if (confirm_command) display_view.AppendLine("\n\nCommand confirmed!");
+                display_view.Append("\n\nCommand: ").AppendLine(last_command);
             }
-            if (menu_level == 2)
+            else if (menu_level == 2)
             {
-                display_view.Append($"{line_highlight_0} 1. {item_line_0[menu_level]} {new_numPointsX}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_1} 2. {item_line_1[menu_level]} {new_numPointsY}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_2} 3. {item_line_2[menu_level]} {new_gridsize}m");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_3} 4. {item_line_3[menu_level]} {perimieterOnly_display}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_4} 5. {item_line_4[menu_level]} {new_drillshaft_length}m");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_5} 6. {item_line_5[menu_level]} {new_ignore_depth}m");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_6} 7. {item_line_6[menu_level]} {limit_display}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_7} 8. {item_line_7[menu_level]} {new_hard_drone_limit}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_8} 9. {item_line_8[menu_level]} {new_flight_factor}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_9} 10. {item_line_9[menu_level]} {core_display}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_10} 11. {item_line_10[menu_level]} {menu_display}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_11} 12. {item_line_11[menu_level]} {displayconfirm_2}");
-                if (confirm_send)
-                {
-                    display_view.Append('\n');
-                    display_view.Append('\n');
-                    display_view.Append("Data confirmed!");
-                    display_view.Append('\n');
-                }
+                display_view.Append(line_highlight_0).Append(" 1. ").Append(item_line_0[menu_level]).Append(" ").Append(new_numPointsX).Append('\n');
+                display_view.Append(line_highlight_1).Append(" 2. ").Append(item_line_1[menu_level]).Append(" ").Append(new_numPointsY).Append('\n');
+                display_view.Append(line_highlight_2).Append(" 3. ").Append(item_line_2[menu_level]).Append(" ").Append(new_gridsize).AppendLine("m");
+                display_view.Append(line_highlight_3).Append(" 4. ").Append(item_line_3[menu_level]).Append(" ").AppendLine(perimieterOnly_display);
+                display_view.Append(line_highlight_4).Append(" 5. ").Append(item_line_4[menu_level]).Append(" ").Append(new_drillshaft_length).AppendLine("m");
+                display_view.Append(line_highlight_5).Append(" 6. ").Append(item_line_5[menu_level]).Append(" ").Append(new_ignore_depth).AppendLine("m");
+                display_view.Append(line_highlight_6).Append(" 7. ").Append(item_line_6[menu_level]).Append(" ").AppendLine(limit_display);
+                display_view.Append(line_highlight_7).Append(" 8. ").Append(item_line_7[menu_level]).Append(" ").Append(new_hard_drone_limit).Append('\n');
+                display_view.Append(line_highlight_8).Append(" 9. ").Append(item_line_8[menu_level]).Append(" ").Append(new_flight_factor).Append('\n');
+                display_view.Append(line_highlight_9).Append(" 10. ").Append(item_line_9[menu_level]).Append(" ").AppendLine(core_display);
+                display_view.Append(line_highlight_10).Append(" 11. ").Append(item_line_10[menu_level]).Append(" ").AppendLine(menu_display);
+                display_view.Append(line_highlight_11).Append(" 12. ").Append(item_line_11[menu_level]).Append(" ").AppendLine(displayconfirm_2);
+
+                if (confirm_send) display_view.AppendLine("\n\nData confirmed!");
             }
-            if (menu_level == 3)
+            else if (menu_level == 3)
             {
-                if (jobID[new_job_number] != null)
-                {
-                    job_display = jobID[new_job_number];
-                }
-                else
-                {
-                    job_display = "undefined";
-                }
-                    display_view.Append($"{line_highlight_0} 1. {item_line_0[menu_level]} {scroll_job_item[scroll_item_val]}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_1} 2. {item_line_1[menu_level]} {new_job_number + 1}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_2} 3. {item_line_2[menu_level]} {job_display}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_9} ..  {item_line_9[menu_level]}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_10} 11. {item_line_10[menu_level]} {menu_display}");
-                display_view.Append('\n');
-                display_view.Append($"{line_highlight_11} 12. {item_line_11[menu_level]} {displayconfirm_3}");
-                if (confirm_send)
-                {
-                    display_view.Append('\n');
-                    display_view.Append('\n');
-                    display_view.Append("Command confirmed!");
-                    display_view.Append('\n');
-                }
-                display_view.Append('\n');
-                display_view.Append('\n');
-                display_view.Append($"Command: {last_command}");
-                display_view.Append('\n');
+                string job_display = (jobID[new_job_number] != null) ? jobID[new_job_number] : "undefined";
+
+                display_view.Append(line_highlight_0).Append(" 1. ").Append(item_line_0[menu_level]).Append(" ").AppendLine(scroll_job_item[scroll_item_val]);
+                display_view.Append(line_highlight_1).Append(" 2. ").Append(item_line_1[menu_level]).Append(" ").Append(new_job_number + 1).Append('\n');
+                display_view.Append(line_highlight_2).Append(" 3. ").Append(item_line_2[menu_level]).Append(" ").AppendLine(job_display);
+                display_view.Append(line_highlight_9).Append(" ..  ").AppendLine(item_line_9[menu_level]);
+                display_view.Append(line_highlight_10).Append(" 11. ").Append(item_line_10[menu_level]).Append(" ").AppendLine(menu_display);
+                display_view.Append(line_highlight_11).Append(" 12. ").Append(item_line_11[menu_level]).Append(" ").AppendLine(displayconfirm_3);
+
+                if (confirm_send) display_view.AppendLine("\n\nCommand confirmed!");
+                display_view.Append("\n\nCommand: ").AppendLine(last_command);
             }
+
+            // 5. Data Footer
             if (data_valid)
             {
-                display_view.Append('\n');
-                display_view.Append('\n');
-                display_view.Append($"Mining Job Information");
-                display_view.Append('\n');
-                display_view.Append($"-----------");
-                display_view.Append('\n');
-                display_view.Append($"Surface Distance: {surfaceDistance}");
-                display_view.Append('\n');
-                display_view.Append("Target Coordinates:");
-                display_view.Append('\n');
-                display_view.Append($"X: {Math.Round(main_gps_coords.X, 2)}, Y: {Math.Round(main_gps_coords.Y, 2)}, Z: {Math.Round(main_gps_coords.Z, 2)}");
-                display_view.Append('\n');
+                display_view.Append("\n\nMining Job Information\n-----------\n");
+                display_view.Append("Surface Distance: ").Append(surfaceDistance).Append('\n');
+                display_view.AppendLine("Target Coordinates:");
+                display_view.Append("X: ").Append(Math.Round(main_gps_coords.X, 2))
+                          .Append(", Y: ").Append(Math.Round(main_gps_coords.Y, 2))
+                          .Append(", Z: ").Append(Math.Round(main_gps_coords.Z, 2)).Append('\n');
+
                 if (customDataAlignTargetValid)
                 {
-                    display_view.Append("Align Coordinates:");
-                    display_view.Append('\n');
-                    display_view.Append($"X: {alignGPSCoordinates.X}, Y: {alignGPSCoordinates.Y}, Z: {alignGPSCoordinates.Z}");
-                    display_view.Append('\n');
+                    display_view.AppendLine("Align Coordinates:");
+                    display_view.Append("X: ").Append(alignGPSCoordinates.X)
+                              .Append(", Y: ").Append(alignGPSCoordinates.Y)
+                              .Append(", Z: ").Append(alignGPSCoordinates.Z).Append('\n');
                 }
-
             }
-
         }
 
         public void incr_item()
