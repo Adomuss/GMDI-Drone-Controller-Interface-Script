@@ -628,8 +628,8 @@ namespace IngameScript
             sbtexttemp.Append("Confirm = ").AppendLine(confirmval);
             sbtexttemp.Append("Change increment = ").AppendLine(incrsel);
             sbtexttemp.Append("Increase value = ").AppendLine(increase);
-            sbtexttemp.AppendLine("Decrease value = ").AppendLine(decrease);
-            sbtexttemp.AppendLine("Main menu = ").AppendLine(menureturn);
+            sbtexttemp.Append("Decrease value = ").AppendLine(decrease);
+            sbtexttemp.Append("Main menu = ").AppendLine(menureturn);
         }
         public void process_job_status()
         {
