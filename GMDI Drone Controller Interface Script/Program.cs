@@ -108,7 +108,7 @@ namespace IngameScript
         string core_display;
         string cancel_display;
         string menu_display;
-        string job_display;
+        //string job_display;
         string perimieterOnly_display;
         double temp_drillshaft_length = 0.0;
         double temp_ignore_depth = 0.0;
@@ -620,16 +620,16 @@ namespace IngameScript
 
         public void displayinfo_local()
         {
-            sbtexttemp.AppendLine($"GMDI {ver} Running {icon}");
+            sbtexttemp.Append("GMDI ").Append(ver).Append(" Running ").AppendLine(icon);
             sbtexttemp.AppendLine("");
             sbtexttemp.AppendLine("Use the below run arguments to navigate:");
             sbtexttemp.AppendLine("----------------------------------------");
             sbtexttemp.AppendLine("");
-            sbtexttemp.AppendLine($"Confirm = {confirmval}");
-            sbtexttemp.AppendLine($"Change increment = {incrsel}");
-            sbtexttemp.AppendLine($"Increase value = {increase}");
-            sbtexttemp.AppendLine($"Decrease value = {decrease}");
-            sbtexttemp.AppendLine($"Main menu = {menureturn}");
+            sbtexttemp.Append("Confirm = ").AppendLine(confirmval);
+            sbtexttemp.Append("Change increment = ").AppendLine(incrsel);
+            sbtexttemp.Append("Increase value = ").AppendLine(increase);
+            sbtexttemp.AppendLine("Decrease value = ").AppendLine(decrease);
+            sbtexttemp.AppendLine("Main menu = ").AppendLine(menureturn);
         }
         public void process_job_status()
         {
@@ -839,14 +839,6 @@ namespace IngameScript
             if (temp_loadsave > 1)
             {
                 temp_loadsave = 0;
-            }
-            if (temp_loadsave == 0)
-            {
-                job_display = "Load";
-            }
-            if (temp_loadsave == 1)
-            {
-                job_display = "Save";
             }
             //Perimiter only display
             if(new_skipbores == 0)
@@ -3057,12 +3049,7 @@ namespace IngameScript
 
             display_view.Append("\n\n\n"); // Triple newline
 
-            // 3. Validation Warning
-            if (!data_valid)
-            {
-                display_view.AppendLine("\nNo target coordinates found!");
-                display_view.AppendLine("Please assign valid target using prospector.\n");
-            }
+
 
             // 4. Menu Items
             if (menu_level == 0)
@@ -3133,6 +3120,14 @@ namespace IngameScript
                               .Append(", Y: ").Append(alignGPSCoordinates.Y)
                               .Append(", Z: ").Append(alignGPSCoordinates.Z).Append('\n');
                 }
+            }
+
+            // 3. Validation Warning
+            if (!data_valid)
+            {
+                display_view.AppendLine("\n");
+                display_view.AppendLine("\nNo target coordinates found!");
+                display_view.AppendLine("Please assign valid target using prospector.\n");
             }
         }
 
