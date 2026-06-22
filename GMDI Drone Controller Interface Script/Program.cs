@@ -51,7 +51,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
 
-        string ver = "V0.606";
+        string ver = "V0.607";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -757,11 +757,11 @@ namespace IngameScript
             new_skipbores = skipbores + temp_skipbores;
             if (new_skipbores < 0)
             {
-                new_skipbores = 0;
+                new_skipbores = 1;
             }
             if (new_skipbores > 1)
             {
-                new_skipbores = 1;
+                new_skipbores = 0;
             }
             //coreout management
             if (temp_limit_coreout < 0)
