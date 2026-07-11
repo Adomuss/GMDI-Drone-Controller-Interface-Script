@@ -51,7 +51,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
 
-        string ver = "V0.607";
+        string ver = "V0.608";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -629,7 +629,7 @@ namespace IngameScript
             sbtexttemp.Append("Change increment = ").AppendLine(incrsel);
             sbtexttemp.Append("Increase value = ").AppendLine(increase);
             sbtexttemp.Append("Decrease value = ").AppendLine(decrease);
-            sbtexttemp.Append("Main menu = ").AppendLine(menureturn);
+            sbtexttemp.Append("Main menu = ").AppendLine(menureturn);            
         }
         public void process_job_status()
         {
@@ -2321,6 +2321,9 @@ namespace IngameScript
             if (_customDataStore.TryParse(input))
             {
                 var str = "";
+                bool atx = false;
+                bool aty = false;
+                bool atz = false;
                 str = _customDataStore.Get(gmdccategory, "jobname").ToString().Trim();
                 jobname = str;
                 str = _customDataStore.Get(gmdccategory, jobinfo).ToString().Trim();
@@ -2356,13 +2359,26 @@ namespace IngameScript
                     {
                         alignGPSCoordinates.X = 0.0;
                     }
+                    else
+                    {
+                        atx = true;
+                    }
                     if (!double.TryParse(vectorsplit[3], out alignGPSCoordinates.Y))
                     {
                         alignGPSCoordinates.Y = 0.0;
                     }
+                    else
+                    {
+                        aty = true;
+                    }
+
                     if (!double.TryParse(vectorsplit[4], out alignGPSCoordinates.Z))
                     {
                         alignGPSCoordinates.Z = 0.0;
+                    }
+                    else
+                    {
+                        atz = true;
                     }
                 }
                 else
@@ -2370,6 +2386,14 @@ namespace IngameScript
                     alignGPSCoordinates.X = 0.0;
                     alignGPSCoordinates.Y = 0.0;
                     alignGPSCoordinates.Z = 0.0;
+                    if (customDataAlignTargetValid)
+                    {
+                        customDataAlignTargetValid = false;
+                    }
+                }
+                if(atx && aty && atz && !customDataAlignTargetValid)
+                {
+                    customDataAlignTargetValid = true;
                 }
                 str = _customDataStore.Get(gmdccategory, "BoreSeparation").ToString().Trim();
                 if (!double.TryParse(str, out gridsize))
