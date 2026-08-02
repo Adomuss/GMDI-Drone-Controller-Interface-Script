@@ -51,7 +51,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
 
-        string ver = "V0.608";
+        string ver = "V0.609";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -321,6 +321,91 @@ namespace IngameScript
                         }
                         _ismissing = true;
                     }
+                    //Name 6
+                    if (_JobStorage.ContainsKey("GMDCJobID", "Job6Name"))
+                    {
+                        str = _JobStorage.Get("GMDCJobID", "Job6Name").ToString().Trim();
+                        if (jobID[5] != null)
+                        {
+                            jobID[5] = str;
+                        }
+                    }
+                    else
+                    {
+                        if (jobID[5] != null)
+                        {
+                            jobID[5] = "";
+                        }
+                        _ismissing = true;
+                    }
+                    //Name 7
+                    if (_JobStorage.ContainsKey("GMDCJobID", "Job7Name"))
+                    {
+                        str = _JobStorage.Get("GMDCJobID", "Job7Name").ToString().Trim();
+                        if (jobID[6] != null)
+                        {
+                            jobID[6] = str;
+                        }
+                    }
+                    else
+                    {
+                        if (jobID[6] != null)
+                        {
+                            jobID[6] = "";
+                        }
+                        _ismissing = true;
+                    }
+                    //Name 8
+                    if (_JobStorage.ContainsKey("GMDCJobID", "Job8Name"))
+                    {
+                        str = _JobStorage.Get("GMDCJobID", "Job8Name").ToString().Trim();
+                        if (jobID[7] != null)
+                        {
+                            jobID[7] = str;
+                        }
+                    }
+                    else
+                    {
+                        if (jobID[7] != null)
+                        {
+                            jobID[7] = "";
+                        }
+                        _ismissing = true;
+                    }
+                    //Name 9
+                    if (_JobStorage.ContainsKey("GMDCJobID", "Job9Name"))
+                    {
+                        str = _JobStorage.Get("GMDCJobID", "Job9Name").ToString().Trim();
+                        if (jobID[8] != null)
+                        {
+                            jobID[8] = str;
+                        }
+                    }
+                    else
+                    {
+                        if (jobID[8] != null)
+                        {
+                            jobID[8] = "";
+                        }
+                        _ismissing = true;
+                    }
+                    //Name 10
+                    if (_JobStorage.ContainsKey("GMDCJobID", "Job10Name"))
+                    {
+                        str = _JobStorage.Get("GMDCJobID", "Job10Name").ToString().Trim();
+                        if (jobID[9] != null)
+                        {
+                            jobID[9] = str;
+                        }
+                    }
+                    else
+                    {
+                        if (jobID[9] != null)
+                        {
+                            jobID[9] = "";
+                        }
+                        _ismissing = true;
+                    }
                 }
                 else
                 {
@@ -390,6 +475,56 @@ namespace IngameScript
                     _JobWrite.Set("GMDCJobID", "Job5RCTarget", target);
                     _JobWrite.Set("GMDCJobID", "Job5RCAlign", align);
                     _JobWrite.Set("GMDCJobID", "Job5RCSafe", distance);
+                }
+                if (JobID == 5)
+                {
+                    _JobWrite.Set("GMDCJobID", "Job6Name", strn);
+                    _JobWrite.Set("GMDCJobID", "Job6Info", jobconf);
+                    _JobWrite.Set("GMDCJobID", "Job6State", jobstate);
+                    _JobWrite.Set("GMDCJobID", "Job6RCInfo", rcjob);
+                    _JobWrite.Set("GMDCJobID", "Job6RCTarget", target);
+                    _JobWrite.Set("GMDCJobID", "Job6RCAlign", align);
+                    _JobWrite.Set("GMDCJobID", "Job6RCSafe", distance);
+                }
+                if (JobID == 6)
+                {
+                    _JobWrite.Set("GMDCJobID", "Job7Name", strn);
+                    _JobWrite.Set("GMDCJobID", "Job7Info", jobconf);
+                    _JobWrite.Set("GMDCJobID", "Job7State", jobstate);
+                    _JobWrite.Set("GMDCJobID", "Job7RCInfo", rcjob);
+                    _JobWrite.Set("GMDCJobID", "Job7RCTarget", target);
+                    _JobWrite.Set("GMDCJobID", "Job7RCAlign", align);
+                    _JobWrite.Set("GMDCJobID", "Job7RCSafe", distance);
+                }
+                if (JobID == 7)
+                {
+                    _JobWrite.Set("GMDCJobID", "Job8Name", strn);
+                    _JobWrite.Set("GMDCJobID", "Job8Info", jobconf);
+                    _JobWrite.Set("GMDCJobID", "Job8State", jobstate);
+                    _JobWrite.Set("GMDCJobID", "Job8RCInfo", rcjob);
+                    _JobWrite.Set("GMDCJobID", "Job8RCTarget", target);
+                    _JobWrite.Set("GMDCJobID", "Job8RCAlign", align);
+                    _JobWrite.Set("GMDCJobID", "Job8RCSafe", distance);
+                }
+                if (JobID == 8)
+                {
+                    _JobWrite.Set("GMDCJobID", "Job9Name", strn);
+                    _JobWrite.Set("GMDCJobID", "Job9Info", jobconf);
+                    _JobWrite.Set("GMDCJobID", "Job9State", jobstate);
+                    _JobWrite.Set("GMDCJobID", "Job9RCInfo", rcjob);
+                    _JobWrite.Set("GMDCJobID", "Job9RCTarget", target);
+                    _JobWrite.Set("GMDCJobID", "Job9RCAlign", align);
+                    _JobWrite.Set("GMDCJobID", "Job9RCSafe", distance);
+                }
+                if (JobID == 9)
+                {
+                    _JobWrite.Set("GMDCJobID", "Job10Name", strn);
+                    _JobWrite.Set("GMDCJobID", "Job10Info", jobconf);
+                    _JobWrite.Set("GMDCJobID", "Job10State", jobstate);
+                    _JobWrite.Set("GMDCJobID", "Job10RCInfo", rcjob);
+                    _JobWrite.Set("GMDCJobID", "Job10RCTarget", target);
+                    _JobWrite.Set("GMDCJobID", "Job10RCAlign", align);
+                    _JobWrite.Set("GMDCJobID", "Job10RCSafe", distance);
                 }
                 block.CustomData = _JobWrite.ToString();
             }
@@ -481,7 +616,7 @@ namespace IngameScript
                 }
                 if (jobID == 2)
                 {
-                    strn = _JobStorage.Get("GMDCJobID", "Job2Name").ToString().Trim();
+                    strn = _JobStorage.Get("GMDCJobID", "Job3Name").ToString().Trim();
                     str = _JobStorage.Get("GMDCJobID", "Job3Info").ToString().Trim();
                     str2 = _JobStorage.Get("GMDCJobID", "Job3State").ToString().Trim();
                     str3 = _JobStorage.Get("GMDCJobID", "Job3RCInfo").ToString().Trim();
@@ -508,6 +643,56 @@ namespace IngameScript
                     str4 = _JobStorage.Get("GMDCJobID", "Job5RCTarget").ToString().Trim();
                     str5 = _JobStorage.Get("GMDCJobID", "Job5RCAlign").ToString().Trim();
                     str6 = _JobStorage.Get("GMDCJobID", "Job5RCSafe").ToString().Trim();
+                }
+                if (jobID == 5)
+                {
+                    strn = _JobStorage.Get("GMDCJobID", "Job6Name").ToString().Trim();
+                    str = _JobStorage.Get("GMDCJobID", "Job6Info").ToString().Trim();
+                    str2 = _JobStorage.Get("GMDCJobID", "Job6State").ToString().Trim();
+                    str3 = _JobStorage.Get("GMDCJobID", "Job6RCInfo").ToString().Trim();
+                    str4 = _JobStorage.Get("GMDCJobID", "Job6RCTarget").ToString().Trim();
+                    str5 = _JobStorage.Get("GMDCJobID", "Job6RCAlign").ToString().Trim();
+                    str6 = _JobStorage.Get("GMDCJobID", "Job6RCSafe").ToString().Trim();
+                }
+                if (jobID == 6)
+                {
+                    strn = _JobStorage.Get("GMDCJobID", "Job7Name").ToString().Trim();
+                    str = _JobStorage.Get("GMDCJobID", "Job7Info").ToString().Trim();
+                    str2 = _JobStorage.Get("GMDCJobID", "Job7State").ToString().Trim();
+                    str3 = _JobStorage.Get("GMDCJobID", "Job7RCInfo").ToString().Trim();
+                    str4 = _JobStorage.Get("GMDCJobID", "Job7RCTarget").ToString().Trim();
+                    str5 = _JobStorage.Get("GMDCJobID", "Job7RCAlign").ToString().Trim();
+                    str6 = _JobStorage.Get("GMDCJobID", "Job7RCSafe").ToString().Trim();
+                }
+                if (jobID == 7)
+                {
+                    strn = _JobStorage.Get("GMDCJobID", "Job8Name").ToString().Trim();
+                    str = _JobStorage.Get("GMDCJobID", "Job8Info").ToString().Trim();
+                    str2 = _JobStorage.Get("GMDCJobID", "Job8State").ToString().Trim();
+                    str3 = _JobStorage.Get("GMDCJobID", "Job8RCInfo").ToString().Trim();
+                    str4 = _JobStorage.Get("GMDCJobID", "Job8RCTarget").ToString().Trim();
+                    str5 = _JobStorage.Get("GMDCJobID", "Job8RCAlign").ToString().Trim();
+                    str6 = _JobStorage.Get("GMDCJobID", "Job8RCSafe").ToString().Trim();
+                }
+                if (jobID == 8)
+                {
+                    strn = _JobStorage.Get("GMDCJobID", "Job9Name").ToString().Trim();
+                    str = _JobStorage.Get("GMDCJobID", "Job9Info").ToString().Trim();
+                    str2 = _JobStorage.Get("GMDCJobID", "Job9State").ToString().Trim();
+                    str3 = _JobStorage.Get("GMDCJobID", "Job9RCInfo").ToString().Trim();
+                    str4 = _JobStorage.Get("GMDCJobID", "Job9RCTarget").ToString().Trim();
+                    str5 = _JobStorage.Get("GMDCJobID", "Job9RCAlign").ToString().Trim();
+                    str6 = _JobStorage.Get("GMDCJobID", "Job9RCSafe").ToString().Trim();
+                }
+                if (jobID == 9)
+                {
+                    strn = _JobStorage.Get("GMDCJobID", "Job10Name").ToString().Trim();
+                    str = _JobStorage.Get("GMDCJobID", "Job10Info").ToString().Trim();
+                    str2 = _JobStorage.Get("GMDCJobID", "Job10State").ToString().Trim();
+                    str3 = _JobStorage.Get("GMDCJobID", "Job10RCInfo").ToString().Trim();
+                    str4 = _JobStorage.Get("GMDCJobID", "Job10RCTarget").ToString().Trim();
+                    str5 = _JobStorage.Get("GMDCJobID", "Job10RCAlign").ToString().Trim();
+                    str6 = _JobStorage.Get("GMDCJobID", "Job10RCSafe").ToString().Trim();
                 }
             }
             else
@@ -572,6 +757,26 @@ namespace IngameScript
                 if (jobID[4] != null)
                 {
                     _JobStorage.Set("GMDCJobID", "Job5Name", jobID[4]);
+                }
+                if (jobID[5] != null)
+                {
+                    _JobStorage.Set("GMDCJobID", "Job6Name", jobID[5]);
+                }
+                if (jobID[6] != null)
+                {
+                    _JobStorage.Set("GMDCJobID", "Job7Name", jobID[6]);
+                }
+                if (jobID[7] != null)
+                {
+                    _JobStorage.Set("GMDCJobID", "Job8Name", jobID[7]);
+                }
+                if (jobID[8] != null)
+                {
+                    _JobStorage.Set("GMDCJobID", "Job9Name", jobID[8]);
+                }
+                if (jobID[9] != null)
+                {
+                    _JobStorage.Set("GMDCJobID", "Job10Name", jobID[9]);
                 }
             }
             
@@ -656,9 +861,9 @@ namespace IngameScript
             new_job_number = 0 + temp_jobnumber;
             if(new_job_number < 0)
             {
-                new_job_number = 4;                
+                new_job_number = 9;                
             }
-            if (new_job_number > 4)
+            if (new_job_number > 9)
             {
                 new_job_number = 0;
             }
@@ -825,9 +1030,9 @@ namespace IngameScript
             //temp job management
             if (temp_jobnumber < 0)
             {
-                temp_jobnumber = 4;
+                temp_jobnumber = 9;
             }
-            if (temp_jobnumber > 4)
+            if (temp_jobnumber > 9)
             {
                 temp_jobnumber = 0;
             }
@@ -2107,6 +2312,11 @@ namespace IngameScript
             scroll_job_item.Clear();
             jobID.Clear();
             //add jobs
+            jobID.Add("");
+            jobID.Add("");
+            jobID.Add("");
+            jobID.Add("");
+            jobID.Add("");
             jobID.Add("");
             jobID.Add("");
             jobID.Add("");
