@@ -21,6 +21,7 @@ using VRage.Game.ModAPI.Ingame;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
 using VRage.Input;
+using VRage.Utils;
 using VRageMath;
 
 namespace IngameScript
@@ -51,7 +52,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
 
-        string ver = "V0.609";
+        string ver = "V0.610";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -220,9 +221,14 @@ namespace IngameScript
         StringBuilder sbtexttemp = new StringBuilder();
         string jobname = "";
         string customData_Old = "";
-        IMyTextSurface surface;
-
-
+        IMyCubeGrid meCubeGrid;
+        List<IMyMotorStator> rotors_all = new List<IMyMotorStator>();
+        List<IMyMotorAdvancedStator> rotorAdvancedStators_all = new List<IMyMotorAdvancedStator>();
+        List<IMyPistonBase> pistons_all = new List<IMyPistonBase>();
+        List<IMyTextSurface> myTextSurfaces_d1 = new List<IMyTextSurface>();
+        string d1_tag = "";
+        string ctl_tag = "";
+        string scnd_tag = "";
 
         public void Save()
         {
@@ -809,7 +815,7 @@ namespace IngameScript
                     str = _dataStore.Get("Configuration", "ship grid tag").ToString().Trim();
                     {
                         secondary = str;
-                        Echo($"Ship grid tag found: {secondary}");
+                        Echo($"Ship grid tag found: {secondary.Replace("[", "[[").Replace("]", "]]")}");
                     }
                 }
             }
@@ -834,7 +840,11 @@ namespace IngameScript
             sbtexttemp.Append("Change increment = ").AppendLine(incrsel);
             sbtexttemp.Append("Increase value = ").AppendLine(increase);
             sbtexttemp.Append("Decrease value = ").AppendLine(decrease);
-            sbtexttemp.Append("Main menu = ").AppendLine(menureturn);            
+            sbtexttemp.Append("Main menu = ").AppendLine(menureturn);
+            sbtexttemp.Append('\n');
+            sbtexttemp.AppendLine($"Display tag ({myTextSurfaces_d1.Count}): {d1_tag} ");
+            sbtexttemp.AppendLine($"Controller tag: {ctl_tag} ");          
+            sbtexttemp.AppendLine($"Ship tag: {scnd_tag} ");
         }
         public void process_job_status()
         {
@@ -2253,9 +2263,15 @@ namespace IngameScript
             {
                 LineResolver(item_number);
                 screen_display();
-                if (display_tag_main.Count > 0 && display_actual != null)
+                if(myTextSurfaces_d1.Count > 0)
                 {
-                    surface.WriteText(display_view.ToString());
+                    for (int i = 0; i < myTextSurfaces_d1.Count; i++)
+                    {
+                        if (myTextSurfaces_d1[i] != null)
+                        {
+                            myTextSurfaces_d1[i].WriteText(display_view.ToString());
+                        }
+                    }
                 }
             }
 
@@ -2291,7 +2307,7 @@ namespace IngameScript
         {
             drone_controller_tag = "[" + drone_tag + " " + comms + "]";
             display_main_tag = "[" + drone_tag + " " + intfs + " " + postfix + "]";
-          //  ant_tg = "[" + drone_tag + " " + comms + "]";
+            //  ant_tg = "[" + drone_tag + " " + comms + "]";
             secondary_tag = $"[{secondary}]";
             item_line_0.Clear();
             item_line_1.Clear();
@@ -2398,58 +2414,239 @@ namespace IngameScript
             Me.CustomData = "";
             at_all.Clear();
             at_tg.Clear();
-            gts.GetBlocksOfType<IMyRadioAntenna>(at_all, b => b.CubeGrid == Me.CubeGrid);
-            for (int i = 0; i < at_all.Count; i++)
-            {
-                if (at_all[i].CustomName.Contains(comms))
-                {
-                    string checker = at_all[i].CustomData;
-                    //drone_custom_data_check(checker, i);
-                    GetAntennaDataStore(checker);
+            rotors_all.Clear();
+            rotorAdvancedStators_all.Clear();
+            pistons_all.Clear();
+            bool blockfinder = false;
 
-                    if (string.IsNullOrEmpty(drone_tag) || string.IsNullOrWhiteSpace(drone_tag))
-                    {
-                        sbtexttemp.AppendLine($"Invalid name for drone_tag {drone_tag}. please add vailid drone tag (drone group name) to antenna custom data e.g. 'SWRM_D:Atlas:', '<drone_tag>:<ship_name>:");
-                        return;
-                    }
-                    at_tg.Add(at_all[i]);
+            gts.GetBlocksOfType<IMyMotorStator>(rotors_all, b => b.TopGrid == Me.CubeGrid);
+
+            if (rotors_all.Count <= 0)
+            {
+                Echo("Rotor top grid not found, checking advanced rotors");
+            }
+
+            if (rotors_all.Count > 0)
+            {
+                if (rotors_all[0] != null)
+                {
+                    meCubeGrid = rotors_all[0].CubeGrid;
+                    Echo("Local cubegrid found - rotor");
+                    blockfinder = true;
                 }
+            }
+
+            gts.GetBlocksOfType<IMyMotorAdvancedStator>(rotorAdvancedStators_all, b => b.TopGrid == Me.CubeGrid);
+
+            if (rotorAdvancedStators_all.Count <= 0)
+            {
+                Echo("Rotor top grid not found, checking advanced rotors");
+            }
+            if (rotorAdvancedStators_all.Count > 0)
+            {
+                if (rotorAdvancedStators_all[0] != null)
+                {
+                    meCubeGrid = rotorAdvancedStators_all[0].CubeGrid;
+                    Echo("Local cubegrid found - advanced rotor/hinge");
+                    blockfinder = true;
+                }
+            }
+
+
+            gts.GetBlocksOfType<IMyPistonBase>(pistons_all, b => b.TopGrid == Me.CubeGrid);
+
+            if (pistons_all.Count <= 0)
+            {
+                Echo("Rotor top grid not found, checking pistons");
+            }
+            if (pistons_all.Count > 0)
+            {
+                if (pistons_all[0] != null)
+                {
+
+                    meCubeGrid = pistons_all[0].CubeGrid;
+                    Echo("Local cubegrid found - piston");
+                    blockfinder = true;
+                }
+            }
+
+
+            if (rotorAdvancedStators_all.Count == 0 && rotors_all.Count == 0 && pistons_all.Count == 0)
+            {
+                meCubeGrid = Me.CubeGrid;
+                Echo("Local cubegrid found - PB");
+                blockfinder = false;
+            }
+
+            rotors_all.Clear();
+            rotorAdvancedStators_all.Clear();
+            pistons_all.Clear();
+
+            if (blockfinder)
+            {
+                gts.GetBlocksOfType<IMyRadioAntenna>(at_all, b => b.CubeGrid == Me.CubeGrid);
+                if (at_all.Count > 0)
+                {
+                    for (int i = 0; i < at_all.Count; i++)
+                    {
+                        if (at_all[i].CustomName.Contains(comms))
+                        {
+                            string checker = at_all[i].CustomData;
+                            //drone_custom_data_check(checker, i);
+                            GetAntennaDataStore(checker);
+
+                            if (string.IsNullOrEmpty(drone_tag) || string.IsNullOrWhiteSpace(drone_tag))
+                            {
+                                sbtexttemp.AppendLine($"Invalid name for drone_tag {drone_tag.Replace("[", "[[").Replace("]", "]]")}. please add vailid drone tag (drone group name) to antenna custom data e.g. 'SWRM_D:Atlas:', '<drone_tag>:<ship_name>:");
+                                return;
+                            }
+                            at_tg.Add(at_all[i]);
+                        }
+                    }
+                }
+                at_all.Clear();
+            }
+            gts.GetBlocksOfType<IMyRadioAntenna>(at_all, b => b.CubeGrid == meCubeGrid);
+            if (at_all.Count > 0)
+            {
+                for (int i = 0; i < at_all.Count; i++)
+                {
+                    if (at_all[i].CustomName.Contains(comms))
+                    {
+                        string checker = at_all[i].CustomData;
+                        //drone_custom_data_check(checker, i);
+                        GetAntennaDataStore(checker);
+
+                        if (string.IsNullOrEmpty(drone_tag) || string.IsNullOrWhiteSpace(drone_tag))
+                        {
+                            sbtexttemp.AppendLine($"Invalid name for drone_tag {drone_tag.Replace("[", "[[").Replace("]", "]]")}. please add vailid drone tag (drone group name) to antenna custom data e.g. 'SWRM_D:Atlas:', '<drone_tag>:<ship_name>:");
+                            return;
+                        }
+                        at_tg.Add(at_all[i]);
+                    }
+                }
+            } else
+            {
+                at_all.Clear();
+                Echo("No ship antennas found with tag " + comms.Replace("[", "[[").Replace("]", "]]") + ". Please add a ship antenna with tag " + comms.Replace("[", "[[").Replace("]", "]]") + " to the main ship");
+                return;
             }
             at_all.Clear();
+
             display_all.Clear();
             display_tag_main.Clear();
-            gts.GetBlocksOfType<IMyTerminalBlock>(display_all, b => b.CubeGrid == Me.CubeGrid);
-            for (int i = 0; i < display_all.Count; i++)
+            myTextSurfaces_d1.Clear();
+            if (blockfinder)
             {
-                if (display_all[i].CustomName.Contains(display_main_tag))
+                gts.GetBlocksOfType<IMyTerminalBlock>(display_all, b => b.CubeGrid == Me.CubeGrid);
+                if (display_all.Count > 0)
                 {
-                    display_tag_main.Add(display_all[i]);
+                    for (int i = 0; i < display_all.Count; i++)
+                    {
+                        if (display_all[i].CustomName.Contains(display_main_tag))
+                        {
+                            display_tag_main.Add(display_all[i]);
+                            myTextSurfaces_d1.Add(((IMyTextSurfaceProvider)display_all[i]).GetSurface(scnpanel));
+                        }
+                    }
+                }
+                display_all.Clear();
+            }
+            gts.GetBlocksOfType<IMyTerminalBlock>(display_all, b => b.CubeGrid == meCubeGrid);
+            if (display_all.Count > 0)
+            {
+                for (int i = 0; i < display_all.Count; i++)
+                {
+                    if (display_all[i].CustomName.Contains(display_main_tag))
+                    {
+                        display_tag_main.Add(display_all[i]);
+                        myTextSurfaces_d1.Add(((IMyTextSurfaceProvider)display_all[i]).GetSurface(scnpanel));
+                    }
                 }
             }
             display_all.Clear();
+
             program_blocks_all.Clear();
             program_blocks_tag.Clear();
-            gts.GetBlocksOfType<IMyProgrammableBlock>(program_blocks_all);
-            for (int i = 0; i < program_blocks_all.Count; i++)
+            if (blockfinder)
             {
-                if (program_blocks_all[i].CustomName.Contains(drone_controller_tag))
+                gts.GetBlocksOfType<IMyProgrammableBlock>(program_blocks_all, b => b.CubeGrid == Me.CubeGrid);
+                if (program_blocks_all.Count > 0)
                 {
-                    program_blocks_tag.Add(program_blocks_all[i]);
+                    for (int i = 0; i < program_blocks_all.Count; i++)
+                    {
+                        if (program_blocks_all[i].CustomName.Contains(drone_controller_tag))
+                        {
+                            program_blocks_tag.Add(program_blocks_all[i]);
+                        }
+                    }
                 }
+                program_blocks_all.Clear();
             }
+            gts.GetBlocksOfType<IMyProgrammableBlock>(program_blocks_all, b => b.CubeGrid == meCubeGrid);
+            if (program_blocks_all.Count > 0)
+            {
+                for (int i = 0; i < program_blocks_all.Count; i++)
+                {
+                    if (program_blocks_all[i].CustomName.Contains(drone_controller_tag))
+                    {
+                        program_blocks_tag.Add(program_blocks_all[i]);
+                    }
+                }
+            } 
             program_blocks_all.Clear();
             remoteControlAll.Clear();
             remoteControlTag.Clear();
-            gts.GetBlocksOfType<IMyRemoteControl>(remoteControlAll, b => b.CubeGrid == Me.CubeGrid);
-            for (int i = 0; i < remoteControlAll.Count; i++)
+            if(blockfinder)
             {
-                if (remoteControlAll[i].CustomName.Contains(drone_controller_tag) || remoteControlAll[i].CustomName.Contains(comms))
-                {                    
-                    remoteControlTag.Add(remoteControlAll[i]);
+                gts.GetBlocksOfType<IMyRemoteControl>(remoteControlAll, b => b.CubeGrid == Me.CubeGrid);
+                if (remoteControlAll.Count > 0)
+                {
+                    for (int i = 0; i < remoteControlAll.Count; i++)
+                    {
+
+                        if (remoteControlAll[i].CustomName.Contains(drone_controller_tag) || remoteControlAll[i].CustomName.Contains(comms))
+                        {
+                            remoteControlTag.Add(remoteControlAll[i]);
+                        }
+                    }
+                }
+                remoteControlAll.Clear();
+            }
+            gts.GetBlocksOfType<IMyRemoteControl>(remoteControlAll, b => b.CubeGrid == meCubeGrid);
+            if (remoteControlAll.Count > 0)
+            {
+                for (int i = 0; i < remoteControlAll.Count; i++)
+                {
+                    if (remoteControlAll[i].CustomName.Contains(drone_controller_tag) || remoteControlAll[i].CustomName.Contains(comms))
+                    {
+                        remoteControlTag.Add(remoteControlAll[i]);
+                    }
                 }
             }
             remoteControlAll.Clear();
+
+            if (myTextSurfaces_d1.Count > 0)
+            {
+                for (int i = 0; i < myTextSurfaces_d1.Count; i++)
+                {
+                    if (myTextSurfaces_d1[i] != null)
+                    {
+                        if (myTextSurfaces_d1[i].ContentType != ContentType.TEXT_AND_IMAGE)
+                        {
+                            myTextSurfaces_d1[i].ContentType = ContentType.TEXT_AND_IMAGE;
+                            myTextSurfaces_d1[i].Alignment = TextAlignment.LEFT;
+                            myTextSurfaces_d1[i].FontSize = 0.380f;
+                            myTextSurfaces_d1[i].Font = "White";
+                        }
+                    }
+                }
+            }
+            d1_tag = display_main_tag.Replace("[","[[").Replace("]", "]]");
+            ctl_tag = drone_controller_tag.Replace("[", "[[").Replace("]", "]]"); ;
+            scnd_tag = secondary.Replace("[", "[[").Replace("]", "]]"); ;
             setup_complete = true;
+            
             sbtexttemp.AppendLine("Setup complete!");
         }
 
@@ -2461,45 +2658,11 @@ namespace IngameScript
                 return;
             }
 
-            if (display_tag_main.Count > 0)
+            if (myTextSurfaces_d1.Count <= 0)
             {
-                if (display_tag_main[0] != null)
-                {
-                    if (display_actual != display_tag_main[0])
-                    {
-                        display_actual = display_tag_main[0];
-                    }
-                    if (surface != ((IMyTextSurfaceProvider)display_actual).GetSurface(scnpanel))
-                    {
-                        surface = ((IMyTextSurfaceProvider)display_actual).GetSurface(scnpanel);
-                    }
-                }
-                else
-                {
                     Echo($"Main Displays with tag '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
                     setup_complete = false;
                     return;
-                }
-            }
-            else
-            {
-                Echo($"Main Displays with tag '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
-                setup_complete = false;
-                return;
-            }
-
-            if (surface != null)
-            {
-                if (surface.ContentType != ContentType.TEXT_AND_IMAGE)
-                {
-                    surface.ContentType = ContentType.TEXT_AND_IMAGE;
-                }
-            }
-            else
-            {
-                Echo($"Panel:'{scnpanel}' on '{display_main_tag.Replace("[", "[[").Replace("]", "]]")}' not found");
-                setup_complete = false;
-                return;
             }
             if (program_blocks_tag.Count > 0)
             {
