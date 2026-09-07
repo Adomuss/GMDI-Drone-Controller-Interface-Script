@@ -52,7 +52,7 @@ namespace IngameScript
         string jobconf = "jobconf";
         string cancelcommand = "cancel";
 
-        string ver = "V0.610";
+        string ver = "V0.611B";
         string comms = "Comms";
         string intfs = "Interface";
         string postfix = "Display";
@@ -229,6 +229,7 @@ namespace IngameScript
         string d1_tag = "";
         string ctl_tag = "";
         string scnd_tag = "";
+        int runTick = 0;
 
         public void Save()
         {
@@ -2230,6 +2231,7 @@ namespace IngameScript
         }
         public void Main(string argument, UpdateType updateSource)
         {
+            runTick++;
             IMyGridTerminalSystem gts = GridTerminalSystem as IMyGridTerminalSystem;
             if (!setup_complete)
             {
@@ -2284,9 +2286,15 @@ namespace IngameScript
             {
                 confirm_command = false;
             }
-
-            Echo(sbtexttemp.ToString());
+            if (runTick % 2 == 0)
+            {
+                Echo(sbtexttemp.ToString());
+            }
             sbtexttemp.Clear();
+            if(runTick > 60)
+            {
+
+            }
         }
 
         void StoreJobData(IMyTerminalBlock block, string input)
